@@ -6,5 +6,4 @@ public class Disc {
 	private DiscType type;
 	private int capacity;
 	private VM vm;
-	private int x;
 }
