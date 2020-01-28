@@ -39,13 +39,12 @@ import axios from '../../axios';
           email: this.email,
           password: this.password,
         }
-        axios.get('/auth/login', formData)
-          .then(res => this.$router.push(this.$route.query.redirect || '/'))
+        axios.post('/auth/login', formData)
+          .then(res => this.$router.push('dashboard'))
           .catch(error => console.log(error))
       
         console.log(formData)
       }
-    
     }
   }
 </script>
