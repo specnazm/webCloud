@@ -4,6 +4,8 @@ package rest;
 import static spark.Spark.port;
 import static spark.Spark.get;
 import static spark.Spark.post;
+import static spark.Spark.options;
+import static spark.Spark.before;
 
 import java.util.ArrayList;
 
@@ -18,12 +20,34 @@ public class SparkMain {
 		private static ArrayList<User> regUsers;
 		
 	public static void main(String[] args) {
-		port(8080);
+		port(8079);
 		
 		regUsers = new ArrayList<User>();
 		User super_admin = new User("superadmin@admin", "pass" , "superadmin", "superadmin" ,"" , Roles.SUPER_ADMIN);
 		regUsers.add(super_admin);
 		
+		
+		options("/*",
+		        (request, response) -> {
+		        	System.out.println("OVde");
+		            String accessControlRequestHeaders = request
+		                    .headers("Access-Control-Request-Headers");
+		            if (accessControlRequestHeaders != null) {
+		                response.header("Access-Control-Allow-Headers",
+		                        accessControlRequestHeaders);
+		            }
+
+		            String accessControlRequestMethod = request
+		                    .headers("Access-Control-Request-Method");
+		            if (accessControlRequestMethod != null) {
+		                response.header("Access-Control-Allow-Methods",
+		                        accessControlRequestMethod);
+		            }
+
+		            return "OK";
+		        });
+		
+		before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
 		
 		post("/api/auth/login" , (req, res) -> {
 			req.session(true);
@@ -39,13 +63,11 @@ public class SparkMain {
 				}
 					
 			}		
-			
-			if (authenticated) {
-				
-				res.redirect("api/dashboard");
+			if (authenticated) {	
 				return g.toJson(logged);
 			}else {
-				return false;
+				res.status(404);
+				return res;
 			}
 			
 			
