@@ -1,7 +1,10 @@
 <template>
   <div id="app">
-    <app-header />
-    <router-view></router-view>
+    <app-header :isAuth="isAuth"/>
+    <router-view 
+      :isAuth="isAuth" 
+      :userRole="userRole"
+      ></router-view>
   </div>
 </template>
 
@@ -9,6 +12,12 @@
   import Header from './components/home/header'
   export default {
     name: 'app',
+    data : function() {
+      return {
+        isAuth: false,
+        userRole : String
+      }
+    },
     components: {
       'app-header': Header
     }

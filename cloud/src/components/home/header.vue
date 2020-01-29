@@ -1,14 +1,14 @@
 <template>
   <header id="header" class="navbar navbar-dark bg-primary">
     <div class="logo">
-      <router-link to="/">Vue - Complete Guide</router-link>
+      <router-link to="/">Home</router-link>
     </div>
     <nav>
       <ul>
-        <li>
+        <li v-if="!isAuth">
           <router-link to="/signin">Sign In</router-link>
         </li>
-        <li>
+         <li v-if="isAuth">
           <router-link to="/dashboard">Dashboard</router-link>
         </li>
       </ul>
@@ -16,6 +16,11 @@
   </header>
 </template>
 
+<script>
+export default {
+      props : ['isAuth']
+}
+</script>
 <style scoped>
   #header {
     height: 56px;
