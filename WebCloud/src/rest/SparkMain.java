@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
+import spark.Session;
 import src.models.Roles;
 import src.models.User;
 
@@ -48,9 +49,9 @@ public class SparkMain {
 		        });
 		
 		before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
-		
+//AUTH		
 		post("/api/auth/login" , (req, res) -> {
-			req.session(true);
+			Session ss = req.session(true);
 			res.type("application/json");
 			String payload_email = req.queryParams("email");
 			String payload_pass = req.queryParams("password");
@@ -63,14 +64,36 @@ public class SparkMain {
 				}
 					
 			}		
-			if (authenticated) {	
+			if (authenticated) {
+				res.status(200);
+				ss.attribute("user", logged);
 				return g.toJson(logged);
 			}else {
 				res.status(404);
+				res.body("Login failed. No such user.");
 				return res;
 			}		
 			
 		});
+		
+		get("/api/auth/logout" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			String s = u.toString();
+			System.out.println(s);
+			
+			if(u != null) {
+				ss.invalidate();
+				res.status(200);
+			}else {
+				res.status(400);
+			}
+			
+			
+			return res;
+		});
+		
+		
 	}
 
 }
