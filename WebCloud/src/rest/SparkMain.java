@@ -53,21 +53,21 @@ public class SparkMain {
 		post("/api/auth/login" , (req, res) -> {
 			Session ss = req.session(true);
 			res.type("application/json");
-			String payload_email = req.queryParams("email");
-			String payload_pass = req.queryParams("password");
+			String payload = req.body();
+			User u = g.fromJson(payload, User.class);
 			Boolean authenticated = false;
-			User logged = new User();
+			User logged_user = new User();
 			for (User user : regUsers) {
-				if(user.verify(payload_email, payload_pass)) {
+				if(user.verify(u.getEmail(), u.getPassword())) {
 					authenticated = true;
-					logged = user;
+					logged_user = user;
 				}
 					
 			}		
 			if (authenticated) {
 				res.status(200);
-				ss.attribute("user", logged);
-				return g.toJson(logged);
+				ss.attribute("user", logged_user);
+				return g.toJson(logged_user);
 			}else {
 				res.status(404);
 				res.body("Login failed. No such user.");
