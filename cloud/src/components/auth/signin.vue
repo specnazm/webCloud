@@ -1,7 +1,7 @@
 <template>
   <div id="signin">
     <div class="signin-form">
-      <form @submit.prevent="onSubmit">
+      <form @submit.prevent="login">
         <div class="input">
           <label for="email">Mail</label>
           <input
@@ -25,7 +25,8 @@
 </template>
 
 <script>
-import axios from '../../axios';
+import { AUTH_REQUEST } from '../../mutationTypes'
+
   export default {
     data () {
       return {
@@ -34,16 +35,14 @@ import axios from '../../axios';
       }
     },
     methods: {
-      onSubmit () {
-        const formData = {
-          email: this.email,
-          password: this.password,
-        }
-        axios.post('/auth/login', formData)
-          .then(res => this.$router.push('dashboard'))
-          .catch(error => console.log(error))
-      
-        console.log(formData)
+      login() {
+        const data = { email: this.email, password: this.password }
+        this.$store.dispatch(AUTH_REQUEST, data)
+        .then(() => {
+          console.log('resolveee');
+          this.$router.push('/dashboard');
+        })
+        .catch(error => console.log(error))
       }
     }
   }

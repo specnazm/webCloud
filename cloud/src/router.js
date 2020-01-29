@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-import App from './App.vue'
+import store from './store'
 import HomePage from './components/home/home.vue'
 import DashboardPage from './components/dashboard/dashboard.vue'
 import SigninPage from './components/auth/signin.vue'
@@ -10,17 +10,20 @@ Vue.use(VueRouter)
 
 const routes = [
   { path: '/', component: HomePage },
-  { path: '/signin', component: SigninPage },
+  { 
+    path: '/signin', 
+    component: SigninPage,
+    beforeEnter(to, from ,next) {
+        store.getters.isAuth ? next('dashboard') : next();
+    } 
+  },
   { 
     path: '/dashboard', 
     component: DashboardPage,
-    beforeEnter(to, from, next) {
-        if(App.isAuth) {
-            next()
-        }else{
-            next('signin')
-        }
-    } }
+    beforeEnter(to, from ,next) {
+      store.getters.isAuth ? next() : next('sigin');
+    } 
+ }
 ]
 
-export default new VueRouter({mode: 'history', routes})
+export default new VueRouter({mode: 'history', routes, props : []})

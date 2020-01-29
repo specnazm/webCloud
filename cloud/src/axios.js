@@ -2,8 +2,11 @@ import axios from 'axios'
 
 const axiosInstance = axios.create({
   headers: {
-    post: {        // can be common or any other method
+    post: {        
       'Access-Control-Allow-Origin': '*'
+    },
+    common : {
+      'Accepts' : 'application/json'
     }
   },
   baseURL: 'http://localhost:8079/api'

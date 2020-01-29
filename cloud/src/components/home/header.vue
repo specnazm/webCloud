@@ -11,14 +11,28 @@
          <li v-if="isAuth">
           <router-link to="/dashboard">Dashboard</router-link>
         </li>
+         <li v-if="this.$store.getters.isAuth">
+          <a @click="logout">Log out</a>
+        </li>
       </ul>
     </nav>
   </header>
 </template>
 
 <script>
+import { AUTH_LOGOUT } from '../../mutationTypes'
+
 export default {
-      props : ['isAuth']
+ computed: {
+   isAuth() {
+    return this.$store.getters.isAuth;
+   }
+  },
+  methods : {
+    logout() {
+      this.$store.dispatch(AUTH_LOGOUT).then(() => this.$router.push('/sigin'))
+    }
+  }
 }
 </script>
 <style scoped>

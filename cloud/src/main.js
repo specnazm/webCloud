@@ -1,15 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
-import axios from 'axios'
 
 import router from './router.js'
-
-
-axios.defaults.baseURL = 'http://localhost:8079/api'
-axios.defaults.headers.get['Accepts'] = 'application/json'
+import store from './store'
 
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 })
