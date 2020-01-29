@@ -31,6 +31,16 @@ public class SparkMain {
 		regUsers = new HashMap<String, User>();
 		User super_admin = new User("superadmin@admin", "pass" , "superadmin", "superadmin" ,"" , Roles.SUPER_ADMIN);
 		regUsers.put(super_admin.getEmail(), super_admin);
+		Organisation org1 = new Organisation();
+		Organisation org2 = new Organisation();
+		org1.setName("Org1");
+		org2.setName("Org2");
+		org1.setDesc("Prva!");
+		org2.setDesc("Druga!");
+		org1.setLogo_url("https://cdn.shopify.com/s/files/1/0080/8372/products/tattly_snowflake_tea_leigh_00_300x300.png?v=1531514165");
+		org2.setLogo_url("https://cdn.windowsreport.com/wp-content/uploads/2013/01/alarm-clock-app-windows-10-1.jpg");
+		regOrgs.put(org1.getName(), org1);
+		regOrgs.put(org2.getName(), org2);
 		
 		
 		options("/*",
