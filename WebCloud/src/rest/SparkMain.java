@@ -1,4 +1,4 @@
-package rest;
+package src.rest;
 
 //Imports
 import static spark.Spark.port;
@@ -11,8 +11,8 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
-import models.Roles;
-import models.User;
+import src.models.Roles;
+import src.models.User;
 
 public class SparkMain {
 		
@@ -68,8 +68,7 @@ public class SparkMain {
 			}else {
 				res.status(404);
 				return res;
-			}
-			
+			}		
 			
 		});
 	}
