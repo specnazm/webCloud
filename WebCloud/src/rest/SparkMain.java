@@ -58,11 +58,14 @@ public class SparkMain {
 		                response.header("Access-Control-Allow-Methods",
 		                        accessControlRequestMethod);
 		            }
-
+		               
 		            return "OK";
 		        });
 		
-		before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
+		before((request, response) -> {
+			response.header("Access-Control-Allow-Origin", "http://localhost:8080");
+			response.header("Access-Control-Allow-Credentials", "true");
+		});
 //AUTH		
 		post("/api/auth/login" , (req, res) -> {
 			Session ss = req.session(true);
@@ -71,7 +74,7 @@ public class SparkMain {
 			User u = g.fromJson(payload, User.class);
 			Boolean authenticated = false;
 			User logged_user = new User();
-			if (regUsers.containsKey(u.getEmail()) | regUsers.get(u.getEmail()).verify(u.getEmail(), u.getPassword())) {
+			if (regUsers.containsKey(u.getEmail()) && regUsers.get(u.getEmail()).verify(u.getEmail(), u.getPassword())) {
 				authenticated = true;
 				logged_user = regUsers.get(u.getEmail());
 			}
@@ -81,8 +84,7 @@ public class SparkMain {
 				return g.toJson(logged_user);
 			}else {
 				res.status(404);
-				res.body("Login failed. No such user.");
-				return res;
+				return ("Login failed. No such user.");
 			}		
 			
 		});
@@ -90,17 +92,15 @@ public class SparkMain {
 		get("/api/auth/logout" , (req, res) -> {
 			Session ss = req.session(true);
 			User u = ss.attribute("user");
-			
 			if(u != null) {
 				ss.invalidate();
 				res.status(200);
+				return  ("User successfully loggedin.");
 			}else {
 				res.status(400);
-				res.body("No user logged in.");
-				return res;
+				return ("No user logged in.");
 			}			
 			
-			return res;
 		});
 		
 //ORGS	
