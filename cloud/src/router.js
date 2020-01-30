@@ -17,13 +17,14 @@ const routes = [
         store.getters.isAuth ? next('dashboard') : next();
     } 
   },
-  { 
-    path: '/dashboard', 
-    component: DashboardPage,
-    beforeEnter(to, from ,next) {
-      store.getters.isAuth ? next() : next('sigin');
-    } 
- }
+  { path: '/dashboard', component: DashboardPage }
 ]
 
-export default new VueRouter({mode: 'history', routes, props : []})
+const router =  new VueRouter({mode: 'history', routes, props : []});
+router.beforeEach((to,from,next) => {
+  if (to.path === '/' || to.path === '/signin' || store.getters.isAuth )
+    next();
+  else
+     next('signin');
+})
+export default router;

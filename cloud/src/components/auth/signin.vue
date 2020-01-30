@@ -5,13 +5,15 @@
         <div class="input">
           <label for="email">Mail</label>
           <input
+                  required
                   type="email"
                   id="email"
                   v-model="email">
         </div>
         <div class="input">
-          <label for="password">Password</label>
+          <label for="password" :v-if="loginFailed">Password</label>
           <input
+                  required
                   type="password"
                   id="password"
                   v-model="password">
@@ -20,29 +22,32 @@
           <button type="submit">Submit</button>
         </div>
       </form>
+     <div class="alert alert-danger" role="alert" v-if="loginFailed">
+       Not valid credentials!
+    </div>
     </div>
   </div>
 </template>
 
 <script>
-import { AUTH_REQUEST } from '../../mutationTypes'
+import { AUTH_REQUEST } from '../../types'
 
   export default {
     data () {
       return {
         email: '',
-        password: ''
+        password: '',
+        loginFailed : false
       }
     },
     methods: {
       login() {
         const data = { email: this.email, password: this.password }
         this.$store.dispatch(AUTH_REQUEST, data)
-        .then(() => {
-          console.log('resolveee');
+        .then( res => {
           this.$router.push('/dashboard');
         })
-        .catch(error => console.log(error))
+        .catch(error => this.loginFailed = true)
       }
     }
   }

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { AUTH_LOGOUT } from '../../mutationTypes'
+import { AUTH_LOGOUT } from '../../types'
 
 export default {
  computed: {
@@ -30,7 +30,7 @@ export default {
   },
   methods : {
     logout() {
-      this.$store.dispatch(AUTH_LOGOUT).then(() => this.$router.push('/sigin'))
+      this.$store.dispatch(AUTH_LOGOUT).then(() => this.$router.push('/signin'))
     }
   }
 }

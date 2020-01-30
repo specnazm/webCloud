@@ -9,6 +9,7 @@ const axiosInstance = axios.create({
       'Accepts' : 'application/json'
     }
   },
+  withCredentials: true,
   baseURL: 'http://localhost:8079/api'
 })
 

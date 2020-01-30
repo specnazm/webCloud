@@ -1,10 +1,33 @@
 <template>
-  <div id="dashboard">
-    <h1>besto</h1>
-  </div>
+ <div id="dashboard">
+   <nav class="main-nav">
+     <div class="logo">
+       my.company
+     </div>
+    
+   </nav>
+   <Sidebar>
+     <ul class="sidebar-panel-nav">
+       <li><a href="#home">Home</a></li>
+       <li><a href="#about">About</a></li>
+       <li><a href="#contact">Contact</a></li>
+     </ul>
+   </Sidebar>
+ </div>
 </template>
 
+<script>
 
+
+import Sidebar from '../dashboard/sidebar'
+
+export default {
+  name: 'dashboard',
+  components: {
+   Sidebar
+ }
+}
+</script>
 <style scoped>
   .signin-form {
     width: 400px;
