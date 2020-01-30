@@ -1,9 +1,9 @@
 <template>
     <div class="sidebar">
-        <div class="sidebar-backdrop" @click="closeSidebarPanel" v-if="isPanelOpen"></div>
+        <div class="sidebar-backdrop" @click="toggleSideBar" v-if="isOpen"></div>
         <transition name="slide">
-            <div v-if="isPanelOpen"
-                 class="sidebar-panel">
+            <div v-if="isOpen"
+                 class="sidebar-panel bg-dark">
                 <slot></slot>
             </div>
         </transition>
@@ -11,12 +11,15 @@
 </template>
 <script>
     export default {
-        data: () => ({
-            isPanelOpen: true
-        }),
+        name: "sidebar",
+        props: {
+            isOpen : {
+                type : Boolean
+            }
+        },
         methods: {
-            closeSidebarPanel() {
-                this.isPanelOpen = false
+            toggleSideBar() {
+                this.$emit('toggle')
             }
         }
     }
@@ -46,7 +49,6 @@
 
     .sidebar-panel {
         overflow-y: auto;
-        background-color: #130f40;
         position: fixed;
         left: 0;
         top: 0;
@@ -54,5 +56,7 @@
         z-index: 999;
         padding: 3rem 20px 2rem 20px;
         width: 300px;
+        display: flex;
+        flex-direction: column;
     }
 </style>

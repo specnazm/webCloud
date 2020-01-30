@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import createPersistedState from "vuex-persistedstate";
 
 import axios from './axios'
-import {AUTH_REQUEST, AUTH_SUCCESS, AUTH_ERROR, AUTH_LOGOUT} from './types'
+import {AUTH_REQUEST, AUTH_SUCCESS, AUTH_ERROR, AUTH_LOGOUT } from './types'
 
 Vue.use(Vuex)
 
@@ -11,10 +11,13 @@ export default new Vuex.Store({
   plugins: [createPersistedState()],
   state : {
     user: null,
-    status: null
+    status: null,
+    isNavOpen: false
   },
   getters : {
-    isAuth: state => state.user !== null
+    isAuth: state => state.user !== null,
+    role : state => state.user.role,
+    org: state => state.user.org
   },
   mutations: {
     [AUTH_REQUEST]: (state) => {

@@ -1,5 +1,6 @@
 <template>
-  <header id="header" class="navbar navbar-dark bg-primary">
+<div>
+  <header id="header" class="navbar navbar-dark bg-dark">
     <div class="logo">
       <router-link to="/">Home</router-link>
     </div>
@@ -14,23 +15,51 @@
          <li v-if="this.$store.getters.isAuth">
           <a @click="logout">Log out</a>
         </li>
+        <li v-if="this.$store.getters.isAuth">
+          <SidebarBtn :isOpen="this.isPanelOpen" @toggle="toggleSideBar"></SidebarBtn>
+        </li>
       </ul>
     </nav>
   </header>
+  <Sidebar :isOpen="isPanelOpen" :toggleSideBar="toggleSideBar">
+     <SuperAdminMenu v-if="role === 'SUPER_ADMIN'"></SuperAdminMenu>
+     <AdminMenu v-else-if="role === 'ADMIN'"></AdminMenu>
+     <UserMenu v-else></UserMenu>
+   </Sidebar>
+  </div>
 </template>
 
 <script>
 import { AUTH_LOGOUT } from '../../types'
+import SidebarBtn from './sidebarBtn'
+import Sidebar from './Sidebar';
+import SuperAdminMenu from '../menu/superAdminMenu'
+import AdminMenu from '../menu/adminMenu'
+import UserMenu from '../menu/userMenu'
 
 export default {
+  components: {
+   SidebarBtn,
+   Sidebar,
+   SuperAdminMenu,
+   AdminMenu,
+   UserMenu
+ },
  computed: {
    isAuth() {
-    return this.$store.getters.isAuth;
+    return this.$store.getters.isAuth
+   },
+   role() {
+     return this.$store.getters.role
    }
   },
+  data: () => ({ isPanelOpen: false }),
   methods : {
     logout() {
       this.$store.dispatch(AUTH_LOGOUT).then(() => this.$router.push('/signin'))
+    },
+    toggleSideBar() {
+      this.isPanelOpen = !this.isPanelOpen
     }
   }
 }
