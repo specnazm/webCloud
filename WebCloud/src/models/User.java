@@ -40,7 +40,11 @@ public class User {
 			return false;
 	}
 
-
+	public boolean checkRequired() {
+		if (this.email == null || this.password == null || this.name == null || this.surname == null || this.role == null || this.org == null )
+			return false;
+		return true;
+	}
 
 	public String getEmail() {
 		return email;
