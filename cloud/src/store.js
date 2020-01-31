@@ -4,7 +4,7 @@ import createPersistedState from "vuex-persistedstate";
 
 import axios from './axios'
 import {AUTH_REQUEST,AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION } from './actions'
-import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION} from './mutations'
+import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION } from './mutations'
 
 Vue.use(Vuex)
 
@@ -28,7 +28,7 @@ export default new Vuex.Store({
       state.status = 'loading'
     },
     [AUTH_SUCCESS]: (state, user) => {
-      state.status = 'success';
+      state.status = 'success'
       state.user = user
     },
     [AUTH_ERROR]: (state) => {
@@ -41,7 +41,10 @@ export default new Vuex.Store({
       state.organisations = {...state.organisations, org}
     },
     [SET_ORGANISATIONS]: (state, orgs) => {
-      state.organisations = orgs;
+      state.organisations = orgs
+    },
+    [SET_ORGANISATION] : (state, org) => {
+      state.organisation = org
     }
   },
   actions: {
@@ -105,8 +108,11 @@ export default new Vuex.Store({
         })
       })
     },
-    [GET_ORGANISATION]: ({commit, dispatch}, name) => {
+    [GET_ORGANISATION]: ({commit, dispatch}, { name } ) => {
       return new Promise((resolve, reject) => { 
+        console.log("Name iz store", name)
+        const url = `/org/${name}`
+        console.log("URL", url)
         axios.get(`/org/${name}`)
         .then(res => {
           commit(SET_ORGANISATION, res.data);

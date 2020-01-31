@@ -27,9 +27,6 @@ export default {
      UserInfo
  },
  computed : {
-     orgName() {
-        return this.$store.getters.org
-     },
      role() {
      return this.$store.getters.role
    }
