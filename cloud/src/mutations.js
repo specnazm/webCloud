@@ -1,0 +1,6 @@
+export const AUTH_SUCCESS = 'AUTH_SUCCESS'
+export const AUTH_ERROR = 'AUTH_ERROR'
+
+export const ADD_ORG = 'ADD_ORG'
+export const SET_ORGANISATIONS = 'SET_ORGANISATIONS'
+export const SET_ORGANISATION = 'SET_ORGANISATIN'

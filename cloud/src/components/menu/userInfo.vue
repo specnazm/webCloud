@@ -1,11 +1,11 @@
 <template>
 <div id="userInfo" class="container">
     <div class="row profile">
-		<div class="col-md-3">
+		<div class="col">
 			<div class="profile-sidebar">
 				<div class="profile-usertitle">
 					<div class="profile-usertitle-name">
-                        {{user.name + ' ' + user.surname}}
+            {{user.name + ' ' + user.surname}}
 					</div>
 					<div class="profile-user-role">
 						{{user.role}}

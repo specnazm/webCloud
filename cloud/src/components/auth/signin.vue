@@ -11,7 +11,7 @@
                   v-model="email">
         </div>
         <div class="input">
-          <label for="password" :v-if="loginFailed">Password</label>
+          <label for="password">Password</label>
           <input
                   required
                   type="password"
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { AUTH_REQUEST } from '../../types'
+import { AUTH_REQUEST } from '../../actions'
 
   export default {
     data () {
