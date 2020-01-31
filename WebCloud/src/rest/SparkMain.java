@@ -212,6 +212,9 @@ public class SparkMain {
 							Cache.getOrgs().get(org_name).setName(org.getName());
 							Cache.putOrg(org.getName(), Cache.getOrgs().get(org_name));
 							Cache.getOrgs().remove(org_name);
+							for (User user: Cache.getUsers().values()) {
+								user.updateUser(org_name, org.getName());
+							}
 						}
 					}
 				}
