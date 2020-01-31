@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
 
 import spark.Session;
 import src.models.Organisation;
@@ -25,9 +26,11 @@ import storage.Cache;
 public class SparkMain {
 		
 		private static Gson g = new Gson();
+		private static JsonObject msg = new JsonObject();
 		
 	public static void main(String[] args) throws JsonIOException, IOException {
 		port(8079);		
+		
 		
 		Cache.load();
 		
@@ -74,7 +77,8 @@ public class SparkMain {
 				return g.toJson(logged_user);
 			}else {
 				res.status(404);
-				return ("Login failed. No such user.");
+				msg.addProperty("msg", "Invalid credentials.");
+				return g.toJson(msg);
 			}		
 			
 		});
@@ -85,10 +89,12 @@ public class SparkMain {
 			if(u != null) {
 				ss.invalidate();
 				res.status(200);
+				msg.addProperty("msg", "Invalid credentials.");
 				return  ("User successfully logged out.");
 			}else {
 				res.status(400);
-				return ("No user logged in.");
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
 			}			
 			
 		});
@@ -102,13 +108,14 @@ public class SparkMain {
 			
 			if(u == null) {
 				res.status(400);
-				res.body("No user logged in, can't perform action.");
-				return res;
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
 			}
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				res.status(403);
-				return ("Action failed, user lacks permission.");
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
 			}else {
 				return g.toJson(Cache.getOrgs());
 			}
@@ -122,19 +129,22 @@ public class SparkMain {
 			
 			if(u == null) {
 				res.status(400);
-				return ("No user logged in, can't perform action.");
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
 			}
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				res.status(403);
-				return ("Action failed, user lacks permission.");
+				msg.addProperty("msg", "User lacks permission to add organisations.");
+				return g.toJson(msg);
 			}else {
 				String payload = req.body();
 				Organisation org = g.fromJson(payload, Organisation.class);
 				if(org.checkRequired()) {
 					if(Cache.getOrgs().containsKey(org.getName())) {
 						res.status(400);
-						return ("Organisation with same name already exists.");
+						msg.addProperty("msg", "Organisation with same name already exists.");
+						return g.toJson(msg);
 					}else {
 						res.status(200);
 						Cache.putOrg(org.getName(), org);
@@ -143,7 +153,8 @@ public class SparkMain {
 					}					
 				}else {
 					res.status(400);
-					return ("Fields missing.");
+					msg.addProperty("msg", "Fields missing.");
+					return g.toJson(msg);
 				}
 			}
 			
@@ -158,18 +169,20 @@ public class SparkMain {
 			if(!Cache.getOrgs().containsKey(org_name))
 			{
 				res.status(400);
-				return("No such organisation.");
+				return true;
 			}
 			
 			if(u == null) {
 				res.status(400);
-				return ("No user logged in, can't perform action.");
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
 			}
 			
 			
 			if(u.getRole() == Roles.USER) {
 				res.status(403);
-				return ("Action failed, user lacks permission.");
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
 			}else {
 				String payload = req.body();
 				Organisation org = g.fromJson(payload, Organisation.class);
@@ -186,12 +199,13 @@ public class SparkMain {
 				
 				if(org.getName() != null)
 				{
-					if(org_name != org.getName())
+					if(org_name.equals(org.getName()))
 					{
 						if(Cache.getOrgs().containsKey(org.getName())) 
 						{
 							res.status(400);
-							return ("Cannot change organisation name, such name already exists.");
+							msg.addProperty("msg", "Cannot change organisation name, such name already exists.");
+							return g.toJson(msg);
 						}else 
 						{
 							Cache.getOrgs().get(org_name).setName(org.getName());
@@ -199,10 +213,9 @@ public class SparkMain {
 							Cache.getOrgs().remove(org_name);
 							Cache.save();
 						}
-						
 					}
 				}
-				
+				Cache.save();
 				return g.toJson(org);
 			}
 			
@@ -216,13 +229,14 @@ public class SparkMain {
 			
 			if(u == null) {
 				res.status(400);
-				res.body("No user logged in, can't perform action.");
-				return res;
+				msg.addProperty("msg", "No user logged in, can't perform action.");
+				return g.toJson(msg);
 			}
 			
 			if(!Cache.getOrgs().containsKey(org_name)) {
 				res.status(400);
-				return ("No organisation with such name.");
+				msg.addProperty("msg", "No organisation with such name.");
+				return g.toJson(msg);
 			}
 			
 			if (u.getRole() == Roles.USER || u.getRole() == Roles.USER)
@@ -234,7 +248,8 @@ public class SparkMain {
 				}else
 				{
 					res.status(400);
-					return ("User doesn't have permission to view organisation.");
+					msg.addProperty("msg", "User doesn't have permission to view organisation.");
+					return g.toJson(msg);
 				}
 			}else {
 				res.status(200);
