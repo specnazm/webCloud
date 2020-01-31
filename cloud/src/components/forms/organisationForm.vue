@@ -12,7 +12,7 @@
                 </button>
               </div>
               <div class="modal-body">
-                <form @submit.prevent="addOrg">
+                <form @submit.prevent="storeData">
                     <div class="input">
                         <label for="name">Name</label>
                         <input
@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { ADD_ORGANISATION } from '../../actions'
+import { ADD_ORGANISATION, EDIT_ORGANISATION } from '../../actions'
 
 export default {
     props: ['showModal', 'org'],
@@ -67,18 +67,28 @@ export default {
       }
     },
     mounted() {
+      console.log('ovde')
       if(this.org) {
-        this.name = this.org.name
-        this.description = this.org.desc
-        this.logo = this.org.logo_url
-        this.title = "Edit organisation"
-        this.btnTitle = "Save changes"
+        this.setData()
+      }
+    },
+    watch: {
+      org() {
+        this.setData()
       }
     },
     methods: {
       close() {
         this.$emit('closeModal')
-        this.resetData()
+        if (!this.org)
+          this.resetData()
+      },
+      setData() {
+        this.name = this.org.name
+        this.description = this.org.desc
+        this.logo = this.org.logo_url
+        this.title = "Edit organisation"
+        this.btnTitle = "Save changes"
       },
       resetData() {
         this.name = ''
@@ -96,28 +106,22 @@ export default {
         'type'             : file.type
       }  
       },
-      addOrg() {
-        console.log('ovde' , this.logo)
+      storeData() {
         const data = { 
                     name: this.name, 
                     description: this.description, 
                     logo: this.logo
                     }
-        this.$store.dispatch(ADD_ORGANISATION, data)
+        const action = this.org ? EDIT_ORGANISATION : ADD_ORGANISATION
+        this.$store.dispatch(action, data)
         .then( res => {
+            if (action === EDIT_ORGANISATION)
+              this.$router.push('/organisations')
             this.close()
         })
-        .catch(error => console.log(error))
+        .catch(error => alert(error.msg))
     }
-    },
-    beforeRouteEnter(to,from,next) {
-        const role = this.$state.getters.role
-        if ( role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
-            next('/dashboard')
-        } else {
-            next()
-        }
-    }  
+    }
 }
 </script>
 

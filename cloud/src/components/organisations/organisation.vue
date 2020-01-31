@@ -11,7 +11,7 @@
             </p>
             <div class="row">
                 <div class="col-xs-12 col-md-6">
-                    <a class="btn btn-success" :href="url" >More info</a>
+                    <a class="btn btn-success" :href="url" @click="setOrg">More info</a>
                 </div>
             </div>
         </div>
@@ -27,14 +27,12 @@ import { SET_ORGANISATION } from '../../mutations'
         props: ['organisation'],
         computed: {
             url() {
-                console.log(this.organisation.name)
-                console.log(`/organisation/${this.organisation.name}`)
                 return`/organisation/${this.organisation.name}`
             }
         },
         methods: {
             setOrg() {
-                this.$store.dispacth(SET_ORGANISATION, this.organisation)
+                this.$store.commit(SET_ORGANISATION, this.organisation)
             }
         }
     }

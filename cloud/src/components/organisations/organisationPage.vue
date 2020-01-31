@@ -1,6 +1,9 @@
 <template>
 <div id="organisationPage" class="container">
-    <Form :showModal="showModal" @closeModal="closeModal" :org="org"/>
+    <Form 
+        :showModal="showModal" 
+        @closeModal="closeModal" 
+        :org="org" />
 		<div class="card">
 			<div class="container-fliud">
 				<div class="wrapper row">
@@ -52,7 +55,7 @@
 </template>
 
 <script>
-import { GET_ORGANISATION } from '../../actions'
+import { GET_ORGANISATION, EDIT_ORGANISATION } from '../../actions'
 import Form from '../forms/organisationForm'
 
 export default {
@@ -97,7 +100,6 @@ export default {
     mounted() {
         this.routeName =  this.$route.params.name
         const data = { name: this.routeName }
-        if (!this.$store.getters.organisation)
         this.$store.dispatch(GET_ORGANISATION, data)
             .then( res => this.setData(res.data))
             .catch(error => {

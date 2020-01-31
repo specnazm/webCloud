@@ -3,12 +3,13 @@ import Vuex from 'vuex'
 import createPersistedState from "vuex-persistedstate";
 
 import axios from './axios'
-import {AUTH_REQUEST,AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION } from './actions'
-import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION } from './mutations'
+import {AUTH_REQUEST,AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION } from './actions'
+import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG } from './mutations'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  plugins: [createPersistedState()],
   state : {
     user: null,
     status: null,
@@ -19,7 +20,7 @@ export default new Vuex.Store({
     isAuth: state => { 
       state.user = JSON.parse(localStorage.getItem('user'))
       return state.user !== null },
-    role : state => state.user ? state.user.role : "",
+    role : state =>  state.user ? state.user.role : "" ,
     org: state => state.user ? state.user.org :  "",
     orgs: state => state.organisations,
     organisation: state => state.organisation
@@ -46,6 +47,14 @@ export default new Vuex.Store({
     },
     [SET_ORGANISATION] : (state, org) => {
       state.organisation = org
+    },
+    [SET_MODIFIED_ORG] : (state, org) => {
+      const index = state.organisations.findIndex((o => o.name == org.name));
+
+      state.organisations = [...state.organisations.slice(0, index),
+        org,
+        ...projects.slice(objIndex + 1),
+      ];
     }
   },
   actions: {
@@ -105,6 +114,25 @@ export default new Vuex.Store({
         .then(res => {
           commit(ADD_ORG, res.data);
           resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [EDIT_ORGANISATION]: ({commit, dispatch}, data) => {
+      const dataServer = { name: data.name, desc: data.description, logo_url: data.logo}
+      return new Promise((resolve, reject) => { 
+        axios(`/org/${data.name}`, {
+          method: 'PUT',
+          data: JSON.stringify(dataServer),
+          headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+        })
+        .then(res => {
+          commit(SET_MODIFIED_ORG, res.data);
+          resolve()
         })
         .catch(err => {
           reject(err)

@@ -22,6 +22,7 @@
     import Organisation from './organisation'
     import Form from '../forms/organisationForm'
     import { GET_ORGANISATIONS } from '../../actions'
+    import store from '../../store'
 
     export default {
         name: "organisationList",
@@ -48,6 +49,14 @@
             closeModal() {
                 this.showModal = false;
             }
-        }
+        },
+        beforeRouteEnter(to,from,next) {
+            const role = store.getters.role
+            if ( role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
+                next('/dashboard')
+            } else {
+                next()
+            }
+        }  
     }
 </script>

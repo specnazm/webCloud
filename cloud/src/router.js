@@ -7,6 +7,7 @@ import DashboardPage from './components/dashboard/dashboard.vue'
 import SigninPage from './components/auth/signin.vue'
 import OrganisationList from './components/organisations/OrganisationList'
 import OrganisationPage from './components/organisations/OrganisationPage'
+import UserList from './components/users/userList'
 
 Vue.use(VueRouter)
 
@@ -21,7 +22,8 @@ const routes = [
   },
   { path: '/dashboard', component: DashboardPage },
   { path: '/organisations', component: OrganisationList },
-  { path: '/organisation/:name', component: OrganisationPage, props: true}
+  { path: '/organisation/:name', component: OrganisationPage, props: true},
+  { path: '/users', component: UserList }
 
 ]
 
