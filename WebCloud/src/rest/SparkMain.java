@@ -7,16 +7,20 @@ import static spark.Spark.post;
 import static spark.Spark.patch;
 import static spark.Spark.options;
 import static spark.Spark.before;
+import static spark.Spark.put;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
 
 import spark.Session;
 import src.models.Organisation;
 import src.models.Roles;
 import src.models.User;
+import storage.Cache;
 
 public class SparkMain {
 		
@@ -24,7 +28,7 @@ public class SparkMain {
 		private static HashMap<String, User> regUsers;
 		private static HashMap<String, Organisation> regOrgs;
 		
-	public static void main(String[] args) {
+	public static void main(String[] args) throws JsonIOException, IOException {
 		port(8079);
 		
 		regOrgs = new HashMap<String, Organisation>();
@@ -42,6 +46,9 @@ public class SparkMain {
 		regOrgs.put(org1.getName(), org1);
 		regOrgs.put(org2.getName(), org2);
 		
+		Cache.setRegOrgs(regOrgs);
+		Cache.setRegUsers(regUsers);
+		Cache.save();
 		
 		options("/*",
 		        (request, response) -> {
@@ -157,7 +164,7 @@ public class SparkMain {
 			
 		});
 		
-		patch("/api/org/:name" , (req, res) -> {
+		put("/api/org/:name" , (req, res) -> {
 			Session ss = req.session(true);
 			User u = ss.attribute("user");
 			res.type("application/json");
