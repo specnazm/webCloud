@@ -1,5 +1,6 @@
 <template>
 <div id="organisationPage" class="container">
+    <Form :showModal="showModal" @closeModal="closeModal" :org="org"/>
 		<div class="card">
 			<div class="container-fliud">
 				<div class="wrapper row">
@@ -11,14 +12,6 @@
 						  <div class="tab-pane" id="pic-4"><img src="http://placekitten.com/400/252" /></div>
 						  <div class="tab-pane" id="pic-5"><img src="http://placekitten.com/400/252" /></div>
 						</div>
-						<ul class="preview-thumbnail nav nav-tabs">
-						  <li class="active"><a data-target="#pic-1" data-toggle="tab"><img src="http://placekitten.com/200/126" /></a></li>
-						  <li><a data-target="#pic-2" data-toggle="tab"><img src="http://placekitten.com/200/126" /></a></li>
-						  <li><a data-target="#pic-3" data-toggle="tab"><img src="http://placekitten.com/200/126" /></a></li>
-						  <li><a data-target="#pic-4" data-toggle="tab"><img src="http://placekitten.com/200/126" /></a></li>
-						  <li><a data-target="#pic-5" data-toggle="tab"><img src="http://placekitten.com/200/126" /></a></li>
-						</ul>
-						
 					</div>
 					<div class="details col-md-6">
 						<h3 class="product-title">{{name}}</h3>
@@ -30,20 +23,26 @@
 								<span class="fa fa-star"></span>
 								<span class="fa fa-star"></span>
 							</div>
-							<span class="review-no">Number of users in organisation : {{users}}</span><br/>
-                            <span class="review-no">Number of resources in organisation : {{rsrc}}</span>
+							<span class="review-no">Number of users in organisation : {{userNum}}</span><br/>
+                            <span class="review-no">Number of resources in organisation : {{rsrcNum}}</span>
 						</div>
 						<p class="product-description">{{desc}}</p>
-						<h4 class="price">current price: <span>$180</span></h4>
-						<p class="vote"><strong>91%</strong> of buyers enjoyed this product! <strong>(87 votes)</strong></p>
-						<h5 class="sizes">Users:
-                            <div 
+						<h5 class="sizes">Resources:
+                            <ul>
+                            <li 
                                 class="size" data-toggle="tooltip" title="small"
-                                v-for="user in users" :key="user.email">{{user.name}} {{user.surname}} </div>
+                                v-for="res in rsrc" :key="res.name">{{res.name}} </li>
+                            </ul>
+						</h5>
+						<h5 class="sizes">Users:
+                            <ul>
+                            <li 
+                                class="size" data-toggle="tooltip" title="small"
+                                v-for="user in users" :key="user.email">{{user.name}} {{user.surname}} </li>
+                            </ul>
 						</h5>
 						<div class="action">
-							<button class="add-to-cart btn btn-default" type="button">add to cart</button>
-							<button class="like btn btn-default" type="button"><span class="fa fa-heart"></span></button>
+							<button class="add-to-cart btn btn-default" type="button" @click="showModal = true">Edit</button>
 						</div>
 					</div>
 				</div>
@@ -54,9 +53,13 @@
 
 <script>
 import { GET_ORGANISATION } from '../../actions'
+import Form from '../forms/organisationForm'
 
 export default {
     name: "organisationPage",
+     components: {
+            Form
+        },
     data : function() {
         return {
             routeName : '',
@@ -64,12 +67,19 @@ export default {
             desc : '',
             logo_url: '',
             users: [],
-            rsrc: []
+            rsrc: [],
+            showModal : false
         }
     },
     computed: {
         org() {
             return this.$store.getters.organisation 
+        },
+        userNum() {
+            return Object.keys(this.users).length
+        },
+        rsrcNum() {
+            return Object.keys(this.rsrc).length
         }
     },
     methods: {
@@ -79,14 +89,21 @@ export default {
             this.logo_url = this.org.logo_url
             this.users = this.org.users
             this.rsrc = this.org.rsrc
-        }
+        },
+        closeModal() {
+                this.showModal = false;
+            }
     },
     mounted() {
         this.routeName =  this.$route.params.name
         const data = { name: this.routeName }
+        if (!this.$store.getters.organisation)
         this.$store.dispatch(GET_ORGANISATION, data)
             .then( res => this.setData(res.data))
-            .catch(error => alert("Sorry, something went wrong!"))
+            .catch(error => {
+                this.$router.push('/dashboard');
+                alert(error)
+            })
     }
 }
 </script>

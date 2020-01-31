@@ -9,7 +9,6 @@ import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  plugins: [createPersistedState()],
   state : {
     user: null,
     status: null,
@@ -17,7 +16,9 @@ export default new Vuex.Store({
     organisation: null
   },
   getters : {
-    isAuth: state => state.user !== null,
+    isAuth: state => { 
+      state.user = JSON.parse(localStorage.getItem('user'))
+      return state.user !== null },
     role : state => state.user ? state.user.role : "",
     org: state => state.user ? state.user.org :  "",
     orgs: state => state.organisations,
@@ -57,6 +58,7 @@ export default new Vuex.Store({
         })
         .then(res => {
           commit(AUTH_SUCCESS, res.data);
+          localStorage.setItem('user', JSON.stringify(res.data));
           resolve(res)
         })
         .catch(err => {
@@ -70,6 +72,7 @@ export default new Vuex.Store({
         axios.get('/auth/logout') 
         .then(res => {
           commit(AUTH_LOGOUT)
+          localStorage.removeItem('user') 
           resolve()
         })
         .catch(err => {

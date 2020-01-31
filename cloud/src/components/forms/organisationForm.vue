@@ -6,7 +6,7 @@
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">New organisation</h5>
+                <h5 class="modal-title">{{title}}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true" @click="close">&times;</span>
                 </button>
@@ -35,7 +35,7 @@
                         @change="onFileChanged($event)"
                     />
                     <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary addOrg">Add organisation</button>
+                            <button type="submit" class="btn btn-primary addOrg">{{btnTitle}}</button>
                             <button type="button" class="btn btn-secondary" @click="close">Cancel</button>
                         </div>
                 </form>
@@ -55,13 +55,24 @@
 import { ADD_ORGANISATION } from '../../actions'
 
 export default {
-    props: ['showModal'],
+    props: ['showModal', 'org'],
      data () {
       return {
         name: '',
         description: '',
         logo: null,
-        nameNotUnique: false
+        nameNotUnique: false,
+        title: "New organisation",
+        btnTitle: "Add organisation",
+      }
+    },
+    mounted() {
+      if(this.org) {
+        this.name = this.org.name
+        this.description = this.org.desc
+        this.logo = this.org.logo_url
+        this.title = "Edit organisation"
+        this.btnTitle = "Save changes"
       }
     },
     methods: {

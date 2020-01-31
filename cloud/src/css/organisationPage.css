@@ -108,6 +108,9 @@ body {
       margin-left: 20px; }
   
   .add-to-cart, .like {
+    position: absolute;
+    right:    0;
+    bottom:   0;  
     background: #ff9f1a;
     padding: 1.2em 1.5em;
     border: none;
