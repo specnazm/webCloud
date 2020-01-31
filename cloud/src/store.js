@@ -49,12 +49,14 @@ export default new Vuex.Store({
       state.organisation = org
     },
     [SET_MODIFIED_ORG] : (state, org) => {
-      const index = state.organisations.findIndex((o => o.name == org.name));
-
-      state.organisations = [...state.organisations.slice(0, index),
-        org,
-        ...projects.slice(objIndex + 1),
-      ];
+      let newState = {}
+      for (const orgName in Object.keys(state.organisations)) {
+        if (orgName === org.Name) {
+            newState[orgName] = org
+        } else
+          newState[orgName] = state.organisations[orgName]
+    }
+      state.organisations = newState;
     }
   },
   actions: {

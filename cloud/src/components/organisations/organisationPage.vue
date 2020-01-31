@@ -104,7 +104,7 @@ export default {
             .then( res => this.setData(res.data))
             .catch(error => {
                 this.$router.push('/dashboard');
-                alert(error)
+                alert(error.response.data.msg)
             })
     }
 }

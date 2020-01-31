@@ -115,11 +115,11 @@ export default {
         const action = this.org ? EDIT_ORGANISATION : ADD_ORGANISATION
         this.$store.dispatch(action, data)
         .then( res => {
-            if (action === EDIT_ORGANISATION)
-              this.$router.push('/organisations')
+           // if (action === EDIT_ORGANISATION)
+             // this.$router.push('/organisations')
             this.close()
         })
-        .catch(error => alert(error.msg))
+        .catch(error => console.log(error))
     }
     }
 }
