@@ -1,1 +1,5 @@
-{"superadmin@admin":{"email":"superadmin@admin","password":"pass","name":"superadmin","surname":"superadmin","org":"","role":"SUPER_ADMIN"}}
+{
+"superadmin@admin":{"email":"superadmin@admin","password":"pass","name":"superadmin","surname":"superadmin","org":"","role":"SUPER_ADMIN"},
+"milena@korisnik":{"email":"milena@korisnik","password":"pass","name":"kebo","surname":"p","org":"Org1","role":"USER"},
+"marko@admin":{"email":"marko@admin","password":"pass","name":"marko","surname":"c","org":"Org1","role":"ADMIN"}
+}
