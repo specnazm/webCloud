@@ -169,6 +169,7 @@ public class SparkMain {
 			if(!Cache.getOrgs().containsKey(org_name))
 			{
 				res.status(400);
+				msg.addProperty("msg", "Can't change name of non-existing organisation.");
 				return true;
 			}
 			
@@ -209,9 +210,6 @@ public class SparkMain {
 						}else 
 						{
 							Cache.getOrgs().get(org_name).setName(org.getName());
-							Cache.putOrg(org.getName(), Cache.getOrgs().get(org_name));
-							Cache.getOrgs().remove(org_name);
-							Cache.save();
 						}
 					}
 				}
