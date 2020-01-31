@@ -21,36 +21,27 @@
       </ul>
     </nav>
   </header>
-  <Sidebar :isOpen="isPanelOpen" :toggleSideBar="toggleSideBar">
-     <SuperAdminMenu v-if="role === 'SUPER_ADMIN'"></SuperAdminMenu>
-     <AdminMenu v-else-if="role === 'ADMIN'"></AdminMenu>
-     <UserMenu v-else></UserMenu>
+  <Sidebar :isOpen="isPanelOpen" @toggle="toggleSideBar">
+     <Menu @toggle="toggleSideBar"></Menu>
    </Sidebar>
   </div>
 </template>
 
 <script>
-import { AUTH_LOGOUT } from '../../types'
+import { AUTH_LOGOUT } from '../../actions'
 import SidebarBtn from './sidebarBtn'
 import Sidebar from './Sidebar';
-import SuperAdminMenu from '../menu/superAdminMenu'
-import AdminMenu from '../menu/adminMenu'
-import UserMenu from '../menu/userMenu'
+import Menu from '../menu/menu';
 
 export default {
   components: {
    SidebarBtn,
    Sidebar,
-   SuperAdminMenu,
-   AdminMenu,
-   UserMenu
+   Menu
  },
  computed: {
    isAuth() {
     return this.$store.getters.isAuth
-   },
-   role() {
-     return this.$store.getters.role
    }
   },
   data: () => ({ isPanelOpen: false }),

@@ -1,0 +1,49 @@
+<template>
+ <div id="organisation" class="item col-xs-4 col-lg-4">
+    <div class="thumbnail card">
+        <div class="img-event">
+            <img class="group list-group-image img-fluid" :src="organisation.logo_url" alt="Organisation logo" />
+        </div>
+        <div class="caption card-body">
+            <h4 class="group card-title inner list-group-item-heading">{{organisation.name}}</h4>
+            <p class="group inner list-group-item-text">
+                {{organisation.desc}} 
+            </p>
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <a class="btn btn-success" :href="url" >More info</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</template>
+
+<script>
+import { SET_ORGANISATION } from '../../mutations'
+
+    export default {
+        name: "organisation",
+        props: ['organisation'],
+        computed: {
+            url() {
+                console.log(this.organisation.name)
+                console.log(`/organisation/${this.organisation.name}`)
+                return`/organisation/${this.organisation.name}`
+            }
+        },
+        methods: {
+            setOrg() {
+                this.$store.dispacth(SET_ORGANISATION, this.organisation)
+            }
+        }
+    }
+</script>
+
+<style scoped>
+img {   
+    width:  400px;
+    height: 150px;
+    background-size: cover;
+}
+</style>

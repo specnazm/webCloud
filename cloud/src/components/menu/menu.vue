@@ -1,11 +1,18 @@
 <template>
-<div id="superAdminMenu">
+<div id="menu">
     <UserInfo></UserInfo>
    <ul class="sidebar-panel-nav">
-    <li><router-link to="/users">Users</router-link></li>
-    <li><router-link to="/org">Organizations</router-link></li>
+    <li><router-link to="/users" v-if="role !== 'USER'">Users</router-link></li>
+    <li><router-link 
+            to="/organisations"  
+            v-if="role !== 'USER'"
+            @click.native="toggleSideBar"
+            >
+            Organizations
+         </router-link>
+   </li>
+    <li><router-link to="/categories"  v-if="role !== 'USER'">Categories</router-link></li>
     <li><router-link to="/drives">Drives</router-link></li>
-    <li><router-link to="/categories">Categories</router-link></li>
     <li><router-link to="/profile">Account settings</router-link></li>
     </ul>
 </div>
@@ -15,10 +22,23 @@
 import UserInfo from './userInfo'
 
 export default {
- name: "superAdminMenu",
+ name: "menu",
  components: {
      UserInfo
- }
+ },
+ computed : {
+     orgName() {
+        return this.$store.getters.org
+     },
+     role() {
+     return this.$store.getters.role
+   }
+},
+methods: {
+         toggleSideBar() {
+            this.$emit('toggle')
+         }
+        }
 }
 </script>
 

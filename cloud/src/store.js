@@ -3,7 +3,8 @@ import Vuex from 'vuex'
 import createPersistedState from "vuex-persistedstate";
 
 import axios from './axios'
-import {AUTH_REQUEST, AUTH_SUCCESS, AUTH_ERROR, AUTH_LOGOUT } from './types'
+import {AUTH_REQUEST,AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION } from './actions'
+import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION} from './mutations'
 
 Vue.use(Vuex)
 
@@ -12,12 +13,15 @@ export default new Vuex.Store({
   state : {
     user: null,
     status: null,
-    isNavOpen: false
+    organisations: [],
+    organisation: null
   },
   getters : {
     isAuth: state => state.user !== null,
-    role : state => state.user.role,
-    org: state => state.user.org
+    role : state => state.user ? state.user.role : "",
+    org: state => state.user ? state.user.org :  "",
+    orgs: state => state.organisations,
+    organisation: state => state.organisation
   },
   mutations: {
     [AUTH_REQUEST]: (state) => {
@@ -32,6 +36,12 @@ export default new Vuex.Store({
     },
     [AUTH_LOGOUT]: (state) => {
       state.user = null
+    },
+    [ADD_ORG] : (state, org) => {
+      state.organisations = {...state.organisations, org}
+    },
+    [SET_ORGANISATIONS]: (state, orgs) => {
+      state.organisations = orgs;
     }
   },
   actions: {
@@ -64,6 +74,48 @@ export default new Vuex.Store({
           reject(err)
         })
       })
-    }
+    },
+    [GET_ORGANISATIONS]: ({commit, dispatch}) => {
+      return new Promise((resolve, reject) => { 
+        axios.get('/org')
+        .then(res => {
+          commit(SET_ORGANISATIONS, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [ADD_ORGANISATION]: ({commit, dispatch}, data) => {
+      return new Promise((resolve, reject) => { 
+        axios('/org', {
+          method: 'POST',
+          data: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+        })
+        .then(res => {
+          commit(ADD_ORG, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [GET_ORGANISATION]: ({commit, dispatch}, name) => {
+      return new Promise((resolve, reject) => { 
+        axios.get(`/org/${name}`)
+        .then(res => {
+          commit(SET_ORGANISATION, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
   }
 })

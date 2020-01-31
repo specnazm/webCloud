@@ -5,6 +5,8 @@ import store from './store'
 import HomePage from './components/home/home.vue'
 import DashboardPage from './components/dashboard/dashboard.vue'
 import SigninPage from './components/auth/signin.vue'
+import OrganisationList from './components/organisations/OrganisationList'
+import OrganisationPage from './components/organisations/OrganisationPage'
 
 Vue.use(VueRouter)
 
@@ -17,7 +19,10 @@ const routes = [
         store.getters.isAuth ? next('dashboard') : next();
     } 
   },
-  { path: '/dashboard', component: DashboardPage }
+  { path: '/dashboard', component: DashboardPage },
+  { path: '/organisations', component: OrganisationList },
+  { path: '/organisation/:name', component: OrganisationPage, props: true}
+
 ]
 
 const router =  new VueRouter({mode: 'history', routes, props : []});
