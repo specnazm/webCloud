@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
 
 import spark.Session;
 import src.models.Organisation;
@@ -25,33 +26,13 @@ import storage.Cache;
 public class SparkMain {
 		
 		private static Gson g = new Gson();
-		private static HashMap<String, User> regUsers;
-		private static HashMap<String, Organisation> regOrgs;
+		private static JsonObject msg = new JsonObject();
 		
 	public static void main(String[] args) throws JsonIOException, IOException {
-		port(8079);
-		
-		regOrgs = new HashMap<String, Organisation>();
-		regUsers = new HashMap<String, User>();
-		User super_admin = new User("superadmin@admin", "pass" , "superadmin", "superadmin" ,"" , Roles.SUPER_ADMIN);
-		regUsers.put(super_admin.getEmail(), super_admin);
-		Organisation org1 = new Organisation();
-		Organisation org2 = new Organisation();
-		org1.setName("Org1");
-		org2.setName("Org2");
-		org1.setDesc("Prva!");
-		org2.setDesc("Druga!");
-		org1.setLogo_url("https://cdn.shopify.com/s/files/1/0080/8372/products/tattly_snowflake_tea_leigh_00_300x300.png?v=1531514165");
-		org2.setLogo_url("https://cdn.windowsreport.com/wp-content/uploads/2013/01/alarm-clock-app-windows-10-1.jpg");
-		User u = new User("milena@korisnik", "pass", "kebo", "p","Org1", Roles.USER);
-		org1.addUser(u.getEmail(), u);
-		regOrgs.put(org1.getName(), org1);
-		regOrgs.put(org2.getName(), org2);
+		port(8079);		
 		
 		
-		Cache.setRegOrgs(regOrgs);
-		Cache.setRegUsers(regUsers);
-		Cache.save();
+		Cache.load();
 		
 		options("/*",
 		        (request, response) -> {
@@ -76,17 +57,19 @@ public class SparkMain {
 			response.header("Access-Control-Allow-Origin", "http://localhost:8080");
 			response.header("Access-Control-Allow-Credentials", "true");
 		});
-//AUTH		
+		
+//AUTH----------------------------------------------------------------------------------------------------------------------------------		
+		
 		post("/api/auth/login" , (req, res) -> {
 			Session ss = req.session(true);
 			res.type("application/json");
 			String payload = req.body();
 			User u = g.fromJson(payload, User.class);
 			Boolean authenticated = false;
-			User logged_user = new User();
-			if (regUsers.containsKey(u.getEmail()) && regUsers.get(u.getEmail()).verify(u.getEmail(), u.getPassword())) {
+			User logged_user = new User();;
+			if (Cache.getUsers().containsKey(u.getEmail()) && Cache.getUsers().get(u.getEmail()).verify(u.getEmail(), u.getPassword())) {
 				authenticated = true;
-				logged_user = regUsers.get(u.getEmail());
+				logged_user = Cache.getUsers().get(u.getEmail());
 			}
 			if (authenticated) {
 				res.status(200);
@@ -94,7 +77,8 @@ public class SparkMain {
 				return g.toJson(logged_user);
 			}else {
 				res.status(404);
-				return ("Login failed. No such user.");
+				msg.addProperty("msg", "Invalid credentials.");
+				return g.toJson(msg);
 			}		
 			
 		});
@@ -105,15 +89,18 @@ public class SparkMain {
 			if(u != null) {
 				ss.invalidate();
 				res.status(200);
+				msg.addProperty("msg", "Invalid credentials.");
 				return  ("User successfully logged out.");
 			}else {
 				res.status(400);
-				return ("No user logged in.");
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
 			}			
 			
 		});
 		
-//ORGS	
+//ORGS----------------------------------------------------------------------------------------------------------------------------------	
+		
 		get("/api/org" , (req, res) -> {
 			Session ss = req.session(true);
 			User u = ss.attribute("user");
@@ -121,15 +108,16 @@ public class SparkMain {
 			
 			if(u == null) {
 				res.status(400);
-				res.body("No user logged in, can't perform action.");
-				return res;
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
 			}
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				res.status(403);
-				return ("Action failed, user lacks permission.");
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
 			}else {
-				return g.toJson(regOrgs);
+				return g.toJson(Cache.getOrgs());
 			}
 			
 		});
@@ -141,27 +129,32 @@ public class SparkMain {
 			
 			if(u == null) {
 				res.status(400);
-				return ("No user logged in, can't perform action.");
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
 			}
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				res.status(403);
-				return ("Action failed, user lacks permission.");
+				msg.addProperty("msg", "User lacks permission to add organisations.");
+				return g.toJson(msg);
 			}else {
 				String payload = req.body();
 				Organisation org = g.fromJson(payload, Organisation.class);
 				if(org.checkRequired()) {
-					if(regOrgs.containsKey(org.getName())) {
+					if(Cache.getOrgs().containsKey(org.getName())) {
 						res.status(400);
-						return ("Organisation with same name already exists.");
+						msg.addProperty("msg", "Organisation with same name already exists.");
+						return g.toJson(msg);
 					}else {
 						res.status(200);
-						regOrgs.put(org.getName(), org);
+						Cache.putOrg(org.getName(), org);
+						Cache.save();
 						return g.toJson(org);
 					}					
 				}else {
 					res.status(400);
-					return ("Fields missing.");
+					msg.addProperty("msg", "Fields missing.");
+					return g.toJson(msg);
 				}
 			}
 			
@@ -173,46 +166,56 @@ public class SparkMain {
 			res.type("application/json");
 			String org_name = req.params("name");
 			
+			if(!Cache.getOrgs().containsKey(org_name))
+			{
+				res.status(400);
+				return true;
+			}
+			
 			if(u == null) {
 				res.status(400);
-				return ("No user logged in, can't perform action.");
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
 			}
+			
 			
 			if(u.getRole() == Roles.USER) {
 				res.status(403);
-				return ("Action failed, user lacks permission.");
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
 			}else {
 				String payload = req.body();
 				Organisation org = g.fromJson(payload, Organisation.class);
 				
 				if(org.getDesc()!= null) 
 				{
-					regOrgs.get(org_name).setDesc(org.getDesc());
+					Cache.getOrgs().get(org_name).setDesc(org.getDesc());
 				}
 				
 				if(org.getLogo_url()!=null)
 				{
-					regOrgs.get(org_name).setLogo_url(org.getLogo_url());
+					Cache.getOrgs().get(org_name).setLogo_url(org.getLogo_url());
 				}
 				
 				if(org.getName() != null)
 				{
-					if(org_name != org.getName())
+					if(org_name.equals(org.getName()))
 					{
-						if(regOrgs.containsKey(org.getName())) 
+						if(Cache.getOrgs().containsKey(org.getName())) 
 						{
 							res.status(400);
-							return ("Cannot change organisation name, such name already exists.");
+							msg.addProperty("msg", "Cannot change organisation name, such name already exists.");
+							return g.toJson(msg);
 						}else 
 						{
-							regOrgs.get(org_name).setName(org.getName());
-							regOrgs.put(org.getName(), regOrgs.get(org_name));
-							regOrgs.remove(org_name);
+							Cache.getOrgs().get(org_name).setName(org.getName());
+							Cache.putOrg(org.getName(), Cache.getOrgs().get(org_name));
+							Cache.getOrgs().remove(org_name);
+							Cache.save();
 						}
-						
 					}
 				}
-				
+				Cache.save();
 				return g.toJson(org);
 			}
 			
@@ -226,13 +229,14 @@ public class SparkMain {
 			
 			if(u == null) {
 				res.status(400);
-				res.body("No user logged in, can't perform action.");
-				return res;
+				msg.addProperty("msg", "No user logged in, can't perform action.");
+				return g.toJson(msg);
 			}
 			
-			if(!regOrgs.containsKey(org_name)) {
+			if(!Cache.getOrgs().containsKey(org_name)) {
 				res.status(400);
-				return ("No organisation with such name.");
+				msg.addProperty("msg", "No organisation with such name.");
+				return g.toJson(msg);
 			}
 			
 			if (u.getRole() == Roles.USER || u.getRole() == Roles.USER)
@@ -240,19 +244,23 @@ public class SparkMain {
 				if(u.getOrg().equals(org_name))
 				{
 					res.status(200);
-					return g.toJson(regOrgs.get(org_name));				
+					return g.toJson(Cache.getOrgs().get(org_name));				
 				}else
 				{
 					res.status(400);
-					return ("User doesn't have permission to view organisation.");
+					msg.addProperty("msg", "User doesn't have permission to view organisation.");
+					return g.toJson(msg);
 				}
 			}else {
 				res.status(200);
-				return g.toJson(regOrgs.get(org_name));
+				return g.toJson(Cache.getOrgs().get(org_name));
 			}
 				
 			
 		});
+		
+//USER----------------------------------------------------------------------------------------------------------------------------------
+		
 		
 	}
 
