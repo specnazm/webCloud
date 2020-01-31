@@ -43,8 +43,11 @@ public class SparkMain {
 		org2.setDesc("Druga!");
 		org1.setLogo_url("https://cdn.shopify.com/s/files/1/0080/8372/products/tattly_snowflake_tea_leigh_00_300x300.png?v=1531514165");
 		org2.setLogo_url("https://cdn.windowsreport.com/wp-content/uploads/2013/01/alarm-clock-app-windows-10-1.jpg");
+		User u = new User("milena@korisnik", "pass", "kebo", "p","Org1", Roles.USER);
+		org1.addUser(u.getEmail(), u);
 		regOrgs.put(org1.getName(), org1);
 		regOrgs.put(org2.getName(), org2);
+		
 		
 		Cache.setRegOrgs(regOrgs);
 		Cache.setRegUsers(regUsers);
