@@ -113,11 +113,16 @@ public class SparkMain {
 				return g.toJson(msg);
 			}
 			
-			if(u.getRole() != Roles.SUPER_ADMIN) {
+			if(u.getRole() == Roles.USER) {
 				res.status(403);
 				msg.addProperty("msg", "User lacks permission.");
 				return g.toJson(msg);
-			}else {
+			}else if(u.getRole() == Roles.ADMIN){
+				HashMap<String, Organisation> org = new HashMap<String, Organisation>();
+				org.put(u.getOrg(), Cache.getOrgs().get(u.getOrg()));
+				return g.toJson(org);
+			}else
+			{				
 				return g.toJson(Cache.getOrgs());
 			}
 			
