@@ -13,7 +13,8 @@ public class Organisation {
 	
 	public Organisation() {
 		super();
-		// TODO Auto-generated constructor stub
+		this.users = new HashMap<String,User>();
+		this.rsrc = new HashMap<String, VM>();
 	}
 	
 	
@@ -29,7 +30,7 @@ public class Organisation {
 	}
 	
 	public boolean checkRequired() {
-		if (this.name == null)
+		if (this.name == null || this.name.equals(""))
 			return false;
 		return true;
 	}
