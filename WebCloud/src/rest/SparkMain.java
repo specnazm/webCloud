@@ -170,7 +170,7 @@ public class SparkMain {
 			{
 				res.status(400);
 				msg.addProperty("msg", "Can't change name of non-existing organisation.");
-				return true;
+				return g.toJson(msg);
 			}
 			
 			if(u == null) {
@@ -200,7 +200,7 @@ public class SparkMain {
 				
 				if(org.getName() != null)
 				{
-					if(org_name.equals(org.getName()))
+					if(!org_name.equals(org.getName()))
 					{
 						if(Cache.getOrgs().containsKey(org.getName())) 
 						{
