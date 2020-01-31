@@ -308,32 +308,32 @@ public class SparkMain {
 			
 		});
 		
-//		delete("/api/user/:id" , (req, res) -> {
-//			Session ss = req.session(true);
-//			User u = ss.attribute("user");
-//			res.type("application/json");
-//			String id = req.params("id");
-//			
-//			if(u == null) {
-//				res.status(400);
-//				msg.addProperty("msg", "No user logged in.");
-//				return g.toJson(msg);
-//			}
-//			
-//			if(u.getRole() == Roles.USER) {
-//				res.status(403);
-//				msg.addProperty("msg", "User lacks permission.");
-//				return g.toJson(msg);
-//			}else if(u.getRole() == Roles.ADMIN) 
-//			{
-//				
-//			}else
-//			{
-//				
-//			}
-//			
-//			
-//		});
+		delete("/api/user/:id" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String id = req.params("id");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}else if(u.getRole() == Roles.ADMIN) 
+			{
+				
+			}else
+			{
+				
+			}
+			
+			
+		});
 		
 		
 	}
