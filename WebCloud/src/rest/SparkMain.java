@@ -135,6 +135,7 @@ public class SparkMain {
 					}else {
 						res.status(200);
 						Cache.putOrg(org.getName(), org);
+						Cache.save();
 						return g.toJson(org);
 					}					
 				}else {
@@ -186,6 +187,7 @@ public class SparkMain {
 							Cache.getOrgs().get(org_name).setName(org.getName());
 							Cache.putOrg(org.getName(), Cache.getOrgs().get(org_name));
 							Cache.getOrgs().remove(org_name);
+							Cache.save();
 						}
 						
 					}
