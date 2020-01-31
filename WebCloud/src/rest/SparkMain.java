@@ -54,7 +54,9 @@ public class SparkMain {
 			response.header("Access-Control-Allow-Origin", "http://localhost:8080");
 			response.header("Access-Control-Allow-Credentials", "true");
 		});
-//AUTH		
+		
+//AUTH----------------------------------------------------------------------------------------------------------------------------------		
+		
 		post("/api/auth/login" , (req, res) -> {
 			Session ss = req.session(true);
 			res.type("application/json");
@@ -91,7 +93,8 @@ public class SparkMain {
 			
 		});
 		
-//ORGS	
+//ORGS----------------------------------------------------------------------------------------------------------------------------------	
+		
 		get("/api/org" , (req, res) -> {
 			Session ss = req.session(true);
 			User u = ss.attribute("user");
@@ -152,10 +155,17 @@ public class SparkMain {
 			res.type("application/json");
 			String org_name = req.params("name");
 			
+			if(!Cache.getOrgs().containsKey(org_name))
+			{
+				res.status(400);
+				return("No such organisation.");
+			}
+			
 			if(u == null) {
 				res.status(400);
 				return ("No user logged in, can't perform action.");
 			}
+			
 			
 			if(u.getRole() == Roles.USER) {
 				res.status(403);
@@ -233,6 +243,9 @@ public class SparkMain {
 				
 			
 		});
+		
+//USER----------------------------------------------------------------------------------------------------------------------------------
+		
 		
 	}
 
