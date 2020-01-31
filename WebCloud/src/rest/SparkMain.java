@@ -95,7 +95,7 @@ public class SparkMain {
 			if(u != null) {
 				ss.invalidate();
 				res.status(200);
-				return  ("User successfully loggedin.");
+				return  ("User successfully logged out.");
 			}else {
 				res.status(400);
 				return ("No user logged in.");
@@ -117,8 +117,7 @@ public class SparkMain {
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				res.status(403);
-				res.body("Action failed, user lacks permission.");
-				return res;
+				return ("Action failed, user lacks permission.");
 			}else {
 				return g.toJson(regOrgs);
 			}
@@ -132,22 +131,19 @@ public class SparkMain {
 			
 			if(u == null) {
 				res.status(400);
-				res.body("No user logged in, can't perform action.");
-				return res;
+				return ("No user logged in, can't perform action.");
 			}
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				res.status(403);
-				res.body("Action failed, user lacks permission.");
-				return res;
+				return ("Action failed, user lacks permission.");
 			}else {
 				String payload = req.body();
 				Organisation org = g.fromJson(payload, Organisation.class);
 				if(org.checkRequired()) {
 					if(regOrgs.containsKey(org.getName())) {
 						res.status(400);
-						res.body("Organisation with same name already exists.");
-						return res;
+						return ("Organisation with same name already exists.");
 					}else {
 						res.status(200);
 						regOrgs.put(org.getName(), org);
@@ -155,29 +151,26 @@ public class SparkMain {
 					}					
 				}else {
 					res.status(400);
-					res.body("Fields missing.");
-					return res;
+					return ("Fields missing.");
 				}
 			}
 			
 		});
 		
-		patch("/api/org/:org_id" , (req, res) -> {
+		patch("/api/org/:name" , (req, res) -> {
 			Session ss = req.session(true);
 			User u = ss.attribute("user");
 			res.type("application/json");
-			String org_name = req.params("org_id");
+			String org_name = req.params("name");
 			
 			if(u == null) {
 				res.status(400);
-				res.body("No user logged in, can't perform action.");
-				return res;
+				return ("No user logged in, can't perform action.");
 			}
 			
 			if(u.getRole() == Roles.USER) {
 				res.status(403);
-				res.body("Action failed, user lacks permission.");
-				return res;
+				return ("Action failed, user lacks permission.");
 			}else {
 				String payload = req.body();
 				Organisation org = g.fromJson(payload, Organisation.class);
@@ -199,8 +192,7 @@ public class SparkMain {
 						if(regOrgs.containsKey(org.getName())) 
 						{
 							res.status(400);
-							res.body("Cannot change organisation name, such name already exists.");
-							return res;
+							return ("Cannot change organisation name, such name already exists.");
 						}else 
 						{
 							regOrgs.get(org_name).setName(org.getName());
@@ -216,7 +208,41 @@ public class SparkMain {
 			
 		});
 		
-		
+		get("/api/org/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String org_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				res.body("No user logged in, can't perform action.");
+				return res;
+			}
+			
+			if(!regOrgs.containsKey(org_name)) {
+				res.status(400);
+				return ("No organisation with such name.");
+			}
+			
+			if (u.getRole() == Roles.USER || u.getRole() == Roles.USER)
+			{
+				if(u.getOrg().equals(org_name))
+				{
+					res.status(200);
+					return g.toJson(regOrgs.get(org_name));				
+				}else
+				{
+					res.status(400);
+					return ("User doesn't have permission to view organisation.");
+				}
+			}else {
+				res.status(200);
+				return g.toJson(regOrgs.get(org_name));
+			}
+				
+			
+		});
 		
 	}
 
