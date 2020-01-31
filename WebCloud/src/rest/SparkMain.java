@@ -25,33 +25,11 @@ import storage.Cache;
 public class SparkMain {
 		
 		private static Gson g = new Gson();
-		private static HashMap<String, User> regUsers;
-		private static HashMap<String, Organisation> regOrgs;
 		
 	public static void main(String[] args) throws JsonIOException, IOException {
-		port(8079);
+		port(8079);		
 		
-		regOrgs = new HashMap<String, Organisation>();
-		regUsers = new HashMap<String, User>();
-		User super_admin = new User("superadmin@admin", "pass" , "superadmin", "superadmin" ,"" , Roles.SUPER_ADMIN);
-		regUsers.put(super_admin.getEmail(), super_admin);
-		Organisation org1 = new Organisation();
-		Organisation org2 = new Organisation();
-		org1.setName("Org1");
-		org2.setName("Org2");
-		org1.setDesc("Prva!");
-		org2.setDesc("Druga!");
-		org1.setLogo_url("https://cdn.shopify.com/s/files/1/0080/8372/products/tattly_snowflake_tea_leigh_00_300x300.png?v=1531514165");
-		org2.setLogo_url("https://cdn.windowsreport.com/wp-content/uploads/2013/01/alarm-clock-app-windows-10-1.jpg");
-		User u = new User("milena@korisnik", "pass", "kebo", "p","Org1", Roles.USER);
-		org1.addUser(u.getEmail(), u);
-		regOrgs.put(org1.getName(), org1);
-		regOrgs.put(org2.getName(), org2);
-		
-		
-		Cache.setRegOrgs(regOrgs);
-		Cache.setRegUsers(regUsers);
-		Cache.save();
+		Cache.load();
 		
 		options("/*",
 		        (request, response) -> {
@@ -83,10 +61,10 @@ public class SparkMain {
 			String payload = req.body();
 			User u = g.fromJson(payload, User.class);
 			Boolean authenticated = false;
-			User logged_user = new User();
-			if (regUsers.containsKey(u.getEmail()) && regUsers.get(u.getEmail()).verify(u.getEmail(), u.getPassword())) {
+			User logged_user = new User();;
+			if (Cache.getUsers().containsKey(u.getEmail()) && Cache.getUsers().get(u.getEmail()).verify(u.getEmail(), u.getPassword())) {
 				authenticated = true;
-				logged_user = regUsers.get(u.getEmail());
+				logged_user = Cache.getUsers().get(u.getEmail());
 			}
 			if (authenticated) {
 				res.status(200);
@@ -129,7 +107,7 @@ public class SparkMain {
 				res.status(403);
 				return ("Action failed, user lacks permission.");
 			}else {
-				return g.toJson(regOrgs);
+				return g.toJson(Cache.getOrgs());
 			}
 			
 		});
@@ -151,12 +129,12 @@ public class SparkMain {
 				String payload = req.body();
 				Organisation org = g.fromJson(payload, Organisation.class);
 				if(org.checkRequired()) {
-					if(regOrgs.containsKey(org.getName())) {
+					if(Cache.getOrgs().containsKey(org.getName())) {
 						res.status(400);
 						return ("Organisation with same name already exists.");
 					}else {
 						res.status(200);
-						regOrgs.put(org.getName(), org);
+						Cache.putOrg(org.getName(), org);
 						return g.toJson(org);
 					}					
 				}else {
@@ -187,27 +165,27 @@ public class SparkMain {
 				
 				if(org.getDesc()!= null) 
 				{
-					regOrgs.get(org_name).setDesc(org.getDesc());
+					Cache.getOrgs().get(org_name).setDesc(org.getDesc());
 				}
 				
 				if(org.getLogo_url()!=null)
 				{
-					regOrgs.get(org_name).setLogo_url(org.getLogo_url());
+					Cache.getOrgs().get(org_name).setLogo_url(org.getLogo_url());
 				}
 				
 				if(org.getName() != null)
 				{
 					if(org_name != org.getName())
 					{
-						if(regOrgs.containsKey(org.getName())) 
+						if(Cache.getOrgs().containsKey(org.getName())) 
 						{
 							res.status(400);
 							return ("Cannot change organisation name, such name already exists.");
 						}else 
 						{
-							regOrgs.get(org_name).setName(org.getName());
-							regOrgs.put(org.getName(), regOrgs.get(org_name));
-							regOrgs.remove(org_name);
+							Cache.getOrgs().get(org_name).setName(org.getName());
+							Cache.putOrg(org.getName(), Cache.getOrgs().get(org_name));
+							Cache.getOrgs().remove(org_name);
 						}
 						
 					}
@@ -230,7 +208,7 @@ public class SparkMain {
 				return res;
 			}
 			
-			if(!regOrgs.containsKey(org_name)) {
+			if(!Cache.getOrgs().containsKey(org_name)) {
 				res.status(400);
 				return ("No organisation with such name.");
 			}
@@ -240,7 +218,7 @@ public class SparkMain {
 				if(u.getOrg().equals(org_name))
 				{
 					res.status(200);
-					return g.toJson(regOrgs.get(org_name));				
+					return g.toJson(Cache.getOrgs().get(org_name));				
 				}else
 				{
 					res.status(400);
@@ -248,7 +226,7 @@ public class SparkMain {
 				}
 			}else {
 				res.status(200);
-				return g.toJson(regOrgs.get(org_name));
+				return g.toJson(Cache.getOrgs().get(org_name));
 			}
 				
 			
