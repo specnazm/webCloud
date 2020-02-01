@@ -31,6 +31,7 @@ public class Cache {
 	public static void putUser(String name, User u)
 	{
 		Cache.users.put(name, u);
+		Cache.orgs.get(u.getOrg()).addUser(name, u);
 	}
 	
 	public static void save() throws JsonIOException, IOException

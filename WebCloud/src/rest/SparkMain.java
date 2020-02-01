@@ -361,6 +361,50 @@ public class SparkMain {
 		});
 		
 		
+		post("/api/user" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to add users.");
+				return g.toJson(msg);
+			}
+			else
+			{
+				String payload = req.body();
+				User user = g.fromJson(payload, User.class);
+				
+				if (u.getRole() == Roles.ADMIN)
+					user.setOrg(u.getOrg());
+				
+				if(user.checkRequired()) {
+					if(Cache.getUsers().containsKey(user.getEmail())) {
+						res.status(400);
+						msg.addProperty("msg", "User with such email already exists.");
+						return g.toJson(msg);
+					}else {
+						res.status(200);
+						Cache.putUser(user.getEmail(), user);
+						Cache.save();
+						return g.toJson(user);
+					}					
+				}else {
+					res.status(400);
+					msg.addProperty("msg", "Fields missing.");
+					return g.toJson(msg);
+				}
+			}
+			
+		});
+		
 //		delete("/api/user/:id" , (req, res) -> {
 //			Session ss = req.session(true);
 //			User u = ss.attribute("user");
