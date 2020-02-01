@@ -434,8 +434,9 @@ public class SparkMain {
 				
 				String payload = req.body();
 				User payload_user = g.fromJson(payload, User.class); 
-				
-				if (u.getRole() == Roles.ADMIN && !u.getOrg().equals(payload_user.getOrg()))
+				System.out.println(u.getOrg());
+				System.out.println(payload_user.getOrg());
+				if (u.getRole() == Roles.ADMIN && (!u.getOrg().equals(payload_user.getOrg())))
 				{
 					res.status(403);
 					msg.addProperty("msg", "Admin lacks permission to edit user from other organisations.");
