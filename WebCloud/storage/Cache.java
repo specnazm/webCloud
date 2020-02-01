@@ -68,9 +68,9 @@ public class Cache {
 		br = new BufferedReader(new FileReader("storage/organisations.json"));
 		Cache.setOrgs(Cache.gson.fromJson(br, type_org));
 		br.close();
-//		br = new BufferedReader(new FileReader("storage/categories.json"));
-//		Cache.setCategories(Cache.gson.fromJson(br, type_category));
-//		br.close();
+		br = new BufferedReader(new FileReader("storage/categories.json"));
+		Cache.setCategories(Cache.gson.fromJson(br, type_category));
+		br.close();
 		
 	}
 	

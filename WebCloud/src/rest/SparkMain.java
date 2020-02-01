@@ -553,7 +553,29 @@ public class SparkMain {
 			
 		});
 		
+//CATEGORIES
 		
+		get("/api/category" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}else
+			{
+				return g.toJson(Cache.getCategories().values());
+			}
+			
+		});
 	}
 
 }
