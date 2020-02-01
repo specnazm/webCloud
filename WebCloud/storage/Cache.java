@@ -42,6 +42,16 @@ public class Cache {
 		Cache.orgs.get(u.getOrg()).getUsers().remove(u.getEmail());
 	}
 	
+	public static void putCat(String name, VMCategory cat)
+	{
+		Cache.categories.put(name,  cat);
+	}
+	
+	public static void removeCat(String name)
+	{
+		Cache.categories.remove(name);
+	}
+	
 	public static void save() throws JsonIOException, IOException
 	{	
 		Cache.gson = new GsonBuilder().create();

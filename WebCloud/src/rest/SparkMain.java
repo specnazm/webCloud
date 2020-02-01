@@ -22,6 +22,7 @@ import spark.Session;
 import src.models.Organisation;
 import src.models.Roles;
 import src.models.User;
+import src.models.VMCategory;
 import storage.Cache;
 
 public class SparkMain {
@@ -573,6 +574,45 @@ public class SparkMain {
 			}else
 			{
 				return g.toJson(Cache.getCategories().values());
+			}
+			
+		});
+		
+		post("/api/category" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to add categories.");
+				return g.toJson(msg);
+			}else 
+			{
+				String payload = req.body();
+				VMCategory cat = g.fromJson(payload, VMCategory.class);
+				if(cat.checkRequired()) {
+					if(Cache.getOrgs().containsKey(cat.getName())) {
+						res.status(400);
+						msg.addProperty("msg", "Category with same name already exists.");
+						return g.toJson(msg);
+					}else {
+						res.status(200);
+						Cache.putCat(cat.getName(), cat);
+						Cache.save();
+						return g.toJson(cat);
+					}					
+				}else {
+					res.status(400);
+					msg.addProperty("msg", "Fields missing.");
+					return g.toJson(msg);
+				}
 			}
 			
 		});
