@@ -457,6 +457,43 @@ public class SparkMain {
 			
 		});
 		
+		put("/api/me" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+					
+				
+			String payload = req.body();
+			User payload_user = g.fromJson(payload, User.class); 
+			
+			
+			if (!u.getOrg().equals(payload_user.getOrg()) || !u.getRole().equals(payload_user.getRole()))
+			{
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to edit own organisation or role.");
+				return g.toJson(msg);
+			}
+			
+			User tmp = u;
+			tmp.setName(payload_user.getName());
+			tmp.setPassword(payload_user.getPassword());
+			tmp.setEmail(payload_user.getEmail());
+			tmp.setSurname(payload_user.getSurname());
+			Cache.removeUser(u);
+			Cache.putUser(tmp.getEmail(), tmp);
+			Cache.save();
+			ss.attribute("user", tmp);
+			return g.toJson(tmp);				
+			
+		});
 		
 //		delete("/api/user/:id" , (req, res) -> {
 //			Session ss = req.session(true);
