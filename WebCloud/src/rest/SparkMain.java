@@ -482,11 +482,15 @@ public class SparkMain {
 				return g.toJson(msg);
 			}
 			
-			User tmp = u;
+			User tmp = new User();			
 			tmp.setName(payload_user.getName());
 			tmp.setPassword(payload_user.getPassword());
 			tmp.setEmail(payload_user.getEmail());
 			tmp.setSurname(payload_user.getSurname());
+			tmp.setRole(u.getRole());
+			tmp.setOrg(u.getOrg());
+			System.out.println(tmp.getEmail());
+			System.out.println(u.getEmail());
 			Cache.removeUser(u);
 			Cache.putUser(tmp.getEmail(), tmp);
 			Cache.save();

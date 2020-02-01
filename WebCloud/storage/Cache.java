@@ -17,10 +17,12 @@ import com.google.gson.reflect.TypeToken;
 
 import src.models.Organisation;
 import src.models.User;
+import src.models.VMCategory;
 
 public class Cache {
 	private static HashMap<String, User> users;
 	private static HashMap<String, Organisation> orgs;
+	private static HashMap<String, VMCategory> categories;
 	private static Gson gson;
 	
 	public static void putOrg(String name, Organisation org)
@@ -49,12 +51,16 @@ public class Cache {
 		w = new FileWriter("storage/organisations.json");
 		Cache.gson.toJson(Cache.orgs, w);
 		w.close();
+		w = new FileWriter("storage/categories.json");
+		Cache.gson.toJson(Cache.categories, w);
+		w.close();
 	}
 	
 	public static void load() throws IOException
 	{
 		Type type_user = new TypeToken<HashMap<String, User>>(){}.getType();
 		Type type_org = new TypeToken<HashMap<String, Organisation>>(){}.getType();
+		Type type_category = new TypeToken<HashMap<String, VMCategory>>(){}.getType();
 		Cache.gson = new GsonBuilder().create();
 		BufferedReader br = new BufferedReader(new FileReader("storage/users.json"));
 		Cache.setUsers(Cache.gson.fromJson(br, type_user));
@@ -62,6 +68,9 @@ public class Cache {
 		br = new BufferedReader(new FileReader("storage/organisations.json"));
 		Cache.setOrgs(Cache.gson.fromJson(br, type_org));
 		br.close();
+//		br = new BufferedReader(new FileReader("storage/categories.json"));
+//		Cache.setCategories(Cache.gson.fromJson(br, type_category));
+//		br.close();
 		
 	}
 	
@@ -76,6 +85,14 @@ public class Cache {
 	}
 	public static void setOrgs(HashMap<String, Organisation> regOrgs) {
 		Cache.orgs = regOrgs;
+	}
+
+	public static HashMap<String, VMCategory> getCategories() {
+		return categories;
+	}
+
+	public static void setCategories(HashMap<String, VMCategory> categories) {
+		Cache.categories = categories;
 	}
 	
 	
