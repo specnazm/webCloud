@@ -10,6 +10,7 @@ import OrganisationPage from './components/organisations/OrganisationPage'
 import UserList from './components/users/userList'
 import UserPage from './components/users/userPage'
 import UserProfilePage from './components/users/userProfilePage'
+import CategoryList from './components/categories/CategoryList'
 
 Vue.use(VueRouter)
 
@@ -28,6 +29,7 @@ const routes = [
   { path: '/users', component: UserList },
   { path: '/user/:email', component: UserPage},
   { path: '/me', component: UserProfilePage },
+  { path: '/categories', component: CategoryList },
 
 ]
 

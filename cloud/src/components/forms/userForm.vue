@@ -88,6 +88,7 @@ import { GET_ORGANISATIONS, ADD_USER, EDIT_USER } from '../../actions'
 import store from '../../store'
 
 export default {
+  name: 'userForm',
   props: ['showModal', 'user'],
   data () {
     return {

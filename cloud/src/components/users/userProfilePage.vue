@@ -108,11 +108,9 @@ export default {
     components: {
         ProfileForm
     },
-    computed: {
-        loggedUser() {
-            return this.$store.getters.loggedUser
-        }
-    },
+   computed: mapState({
+    loggedUser: state => state.user
+   }),
     methods: {
         closeModal() {
             this.showModal = false;

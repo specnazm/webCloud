@@ -3,8 +3,16 @@ import Vuex from 'vuex'
 import createPersistedState from "vuex-persistedstate";
 
 import axios from './axios'
-import {AUTH_REQUEST, GET_USER, AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION, GET_USERS, ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE } from './actions'
-import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, SET_USERS, SET_USER, SET_MODIFIED_USER } from './mutations'
+import {
+  AUTH_REQUEST, AUTH_LOGOUT,  
+  GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION, 
+  GET_USERS, GET_USER,ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE, 
+  GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY } from './actions'
+import { 
+   AUTH_ERROR, AUTH_SUCCESS, 
+   SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, 
+   SET_USERS, SET_USER, SET_MODIFIED_USER,
+   SET_CATEGORIES, SET_CATEGORY, SET_MODIFIED_CATEGORY, } from './mutations'
 
 Vue.use(Vuex)
 
@@ -16,7 +24,8 @@ export default new Vuex.Store({
     organisations: [],
     organisation: null,
     users: [],
-    selectedUser : null
+    selectedUser : null,
+    categories : []
   },
   getters : {
     isAuth: state => { 
@@ -51,7 +60,7 @@ export default new Vuex.Store({
     [AUTH_LOGOUT]: (state) => {
       state.user = null
     },
-    [ADD_ORG] : (state, org) => {
+    [ADD_ORGANISATION] : (state, org) => {
       state.organisations = {...state.organisations, org}
     },
     [SET_ORGANISATIONS]: (state, orgs) => {
@@ -87,7 +96,28 @@ export default new Vuex.Store({
     [DELETE_USER] : (state, email) => {
       const index = state.users.findIndex(u => u.email == email)
 
-      state.users = [...state.users(0, index), ...state.users(index + 1, state.users.length)]
+      state.users = [...state.users.slice(0, index), ...state.users.slice(index + 1, state.users.length)]
+    },
+
+
+    [SET_CATEGORIES] : (state, categories) => {
+      state.categories = categories
+    },
+    [ADD_CATEGORY] : (state, cat) => {
+      state.categories = [...state.categories, cat]
+    },
+    [SET_MODIFIED_CATEGORY] : (state, cat) => {
+      state.selectedCat = {...cat}
+    },
+    [SET_MODIFIED_CATEGORY] : (state, cat) => {
+      const index = state.categories.findIndex(c => c.name === cat.name)
+
+      state.categories = [...state.categories.slice(0, index), cat, ...state.categories.slice(index + 1, state.categories.length)]
+    },
+    [DELETE_CATEGORY] : (state, email) => {
+      const index = state.categories.findIndex(c => c.name == name)
+
+      state.categories = [...state.categories.slice(0, index), ...state.categories.slice(index + 1, state.categories.length)]
     }
   },
   actions: {
@@ -145,7 +175,7 @@ export default new Vuex.Store({
         }
         })
         .then(res => {
-          commit(ADD_ORG, res.data);
+          commit(ADD_ORGANISATION, res.data);
           resolve(res)
         })
         .catch(err => {
@@ -259,8 +289,77 @@ export default new Vuex.Store({
           data: JSON.stringify(data)
         })
         .then(res => {
-          commit(SET_MODIFIED_USER, res.data);
+          commit(SET_MODIFIED_USER, res.data)
+          commit(AUTH_SUCCESS, res.data)
           localStorage.setItem('user', JSON.stringify(res.data));
+          resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+
+    [GET_CATEGORIES]: ({commit, dispatch}) => {
+      return new Promise((resolve, reject) => { 
+        axios.get('/category')
+        .then(res => {
+          commit(SET_CATEGORIES, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [ADD_CATEGORY]: ({commit, dispatch}, data) => {
+      return new Promise((resolve, reject) => { 
+        axios.post('/category', JSON.stringify(data))
+        .then(res => {
+          commit(ADD_CATEGORY, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [GET_CATEGORY]: ({commit, dispatch}, { name } ) => {
+      return new Promise((resolve, reject) => { 
+        axios.get(`/category/${name}`)
+        .then(res => {
+          commit(SET_CATEGORY, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [EDIT_CATEGORY]: ({commit, dispatch}, data) => {
+ 
+      return new Promise((resolve, reject) => { 
+        axios(`/category/${data.name}`, {
+          method: 'PUT',
+          data: JSON.stringify(data)
+        })
+        .then(res => {
+          commit(SET_MODIFIED_CATEGORY, res.data);
+          resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [DELETE_CATEGORY]: ({commit, dispatch}, id) => {
+ 
+      return new Promise((resolve, reject) => { 
+        axios(`/category/${id}`, {
+          method: 'DELETE'
+        })
+        .then(res => {
+          commit(DELETE_CATEGORY, id);
           resolve()
         })
         .catch(err => {
