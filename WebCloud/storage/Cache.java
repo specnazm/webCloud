@@ -31,6 +31,13 @@ public class Cache {
 	public static void putUser(String name, User u)
 	{
 		Cache.users.put(name, u);
+		Cache.orgs.get(u.getOrg()).addUser(name, u);
+	}
+	
+	public static void removeUser(User u)
+	{
+		Cache.users.remove(u.getEmail());
+		Cache.orgs.get(u.getOrg()).getUsers().remove(u.getEmail());
 	}
 	
 	public static void save() throws JsonIOException, IOException

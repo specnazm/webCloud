@@ -1,5 +1,1 @@
-{
-"superadmin@admin":{"email":"superadmin@admin","password":"pass","name":"superadmin","surname":"superadmin","org":"","role":"SUPER_ADMIN"},
-"milena@korisnik":{"email":"milena@korisnik","password":"pass","name":"kebo","surname":"p","org":"Org1","role":"USER"},
-"marko@admin":{"email":"marko@admin","password":"pass","name":"marko","surname":"c","org":"Org1","role":"ADMIN"}
-}
+{"superadmin@admin":{"email":"superadmin@admin","password":"pass","name":"superadmin","surname":"superadmin","org":"","role":"SUPER_ADMIN"},"bdl@bdl":{"email":"bdl@bdl","password":"pass","name":"bdl1","surname":"neka1","org":"Org1","role":"ADMIN"},"milena1@korisnik":{"email":"milena1@korisnik","password":"pass","name":"xz","surname":"z1","org":"Org1","role":"USER"},"marko@admin1":{"email":"marko@admin1","password":"pass","name":"xz","surname":"z1","org":"Org1","role":"ADMIN"},"marko@admin":{"email":"marko@admin1","password":"pass","name":"xz","surname":"z1","org":"Org1","role":"ADMIN"},"milena@korisnik":{"email":"milena1@korisnik","password":"pass","name":"xz","surname":"z1","org":"Org1","role":"USER"}}

@@ -248,7 +248,7 @@ public class SparkMain {
 				return g.toJson(msg);
 			}
 			
-			if (u.getRole() == Roles.USER || u.getRole() == Roles.USER)
+			if (u.getRole() == Roles.USER || u.getRole() == Roles.ADMIN)
 			{
 				if(u.getOrg().equals(org_name))
 				{
@@ -313,32 +313,234 @@ public class SparkMain {
 			
 		});
 		
-//		delete("/api/user/:id" , (req, res) -> {
-//			Session ss = req.session(true);
-//			User u = ss.attribute("user");
-//			res.type("application/json");
-//			String id = req.params("id");
-//			
-//			if(u == null) {
-//				res.status(400);
-//				msg.addProperty("msg", "No user logged in.");
-//				return g.toJson(msg);
-//			}
-//			
-//			if(u.getRole() == Roles.USER) {
-//				res.status(403);
-//				msg.addProperty("msg", "User lacks permission.");
-//				return g.toJson(msg);
-//			}else if(u.getRole() == Roles.ADMIN) 
-//			{
-//				
-//			}else
-//			{
-//				
-//			}
-//			
-//			
-//		});
+		get("/api/user/:email" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String user_email = req.params("email");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in, can't perform action.");
+				return g.toJson(msg);
+			}
+			
+			if(!Cache.getUsers().containsKey(user_email)) {
+				res.status(400);
+				msg.addProperty("msg", "No user with such email.");
+				return g.toJson(msg);
+			}
+			
+			if (u.getRole() == Roles.USER)
+			{
+				res.status(403);
+				msg.addProperty("msg", "User doesn't have permission to view users.");
+				return g.toJson(msg);
+				
+			}else if (u.getRole() == Roles.SUPER_ADMIN)
+			{
+				res.status(200);
+				return g.toJson(Cache.getUsers().get(user_email));
+			}
+			else
+			{
+				if (u.getOrg().equals(Cache.getUsers().get(user_email).getOrg()))
+				{
+					res.status(200);
+					return g.toJson(Cache.getUsers().get(user_email));
+				}
+				else
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin lacks permission to view requested user.");
+					return g.toJson(msg);
+				}
+			}
+				
+			
+		});
+		
+		
+		post("/api/user" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to add users.");
+				return g.toJson(msg);
+			}
+			else
+			{
+				String payload = req.body();
+				User user = g.fromJson(payload, User.class);
+				
+				if (u.getRole() == Roles.ADMIN)
+					user.setOrg(u.getOrg());
+				
+				if(user.checkRequired()) {
+					if(Cache.getUsers().containsKey(user.getEmail())) {
+						res.status(400);
+						msg.addProperty("msg", "User with such email already exists.");
+						return g.toJson(msg);
+					}else {
+						res.status(200);
+						Cache.putUser(user.getEmail(), user);
+						Cache.save();
+						return g.toJson(user);
+					}					
+				}else {
+					res.status(400);
+					msg.addProperty("msg", "Fields missing.");
+					return g.toJson(msg);
+				}
+			}
+			
+		});
+		
+		put("/api/user/:email" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String user_email = req.params("email");
+			
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(!Cache.getUsers().containsKey(user_email)) {
+				res.status(400);
+				msg.addProperty("msg", "No user with such email exists.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to edit users.");
+				return g.toJson(msg);
+			}
+			else 
+			{
+				
+				String payload = req.body();
+				User payload_user = g.fromJson(payload, User.class); 
+				System.out.println(u.getOrg());
+				System.out.println(payload_user.getOrg());
+				if (u.getRole() == Roles.ADMIN && (!u.getOrg().equals(payload_user.getOrg())))
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin lacks permission to edit user from other organisations.");
+					return g.toJson(msg);
+				}
+				
+				User tmp = Cache.getUsers().get(user_email);
+				tmp.setName(payload_user.getName());
+				tmp.setPassword(payload_user.getPassword());
+				tmp.setRole(payload_user.getRole());
+				tmp.setSurname(payload_user.getSurname());
+				Cache.removeUser(tmp);
+				Cache.putUser(tmp.getEmail(), tmp);
+				Cache.save();
+				return g.toJson(tmp);
+				
+			}
+			
+		});
+		
+		put("/api/me" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+					
+				
+			String payload = req.body();
+			User payload_user = g.fromJson(payload, User.class); 
+			
+			
+			if (!u.getOrg().equals(payload_user.getOrg()) || !u.getRole().equals(payload_user.getRole()))
+			{
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to edit own organisation or role.");
+				return g.toJson(msg);
+			}
+			
+			User tmp = u;
+			tmp.setName(payload_user.getName());
+			tmp.setPassword(payload_user.getPassword());
+			tmp.setEmail(payload_user.getEmail());
+			tmp.setSurname(payload_user.getSurname());
+			Cache.removeUser(u);
+			Cache.putUser(tmp.getEmail(), tmp);
+			Cache.save();
+			ss.attribute("user", tmp);
+			return g.toJson(tmp);				
+			
+		});
+		
+		delete("/api/user/:email" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String email = req.params("email");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(!Cache.getUsers().containsKey(email))
+			{
+				res.status(400);
+				msg.addProperty("msg", "No such user.");
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}
+			else 
+			{
+				if(u.getEmail().equals(email)) {
+					res.status(400);
+					msg.addProperty("msg", "User can't delete self.");
+					return msg;
+				}
+				
+				if(!u.getOrg().equals(Cache.getUsers().get(email).getOrg()) && u.getRole()==Roles.ADMIN)
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin not allowed to delete users from other organisations.");
+					return g.toJson(msg);
+				}
+				
+				Cache.removeUser(Cache.getUsers().get(email));
+				Cache.save();
+				res.status(201);
+				return true;
+			}
+			
+			
+		});
 		
 		
 	}
