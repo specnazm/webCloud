@@ -6,14 +6,14 @@
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">{{title}}</h5>
+                <h5 class="modal-title">Edit your profile</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true" @click="close">&times;</span>
                 </button>
               </div>
               <div class="modal-body">
                 <form @submit.prevent="storeData">
-                   <div v-if="!user" class="input">
+                   <div class="input">
                         <label for="email">Email</label>
                         <input
                             required
@@ -45,34 +45,22 @@
                             id="password"
                             v-model="password">
                     </div>
-                     <div v-if="!user" class="input">
-                        <label for="organisation">Organisation</label>
-                        <select 
-                          required
-                          class="form-control" 
-                          v-model="organisation" 
-                          :disabled="disable"
-                          :selected="selected">
-                          <option v-for="org in organisations" v-bind:value="org.name" :key="org.name">
-                           {{ org.name }}
-                          </option>
-                        </select>
-                    </div>
-                    <div class="input">
-                        <label for="role">Role</label>
-                        <select 
-                          required
-                          class="form-control" 
-                          v-model="role" 
-                        >
-                          <option>ADMIN</option>
-                          <option>USER</option>
-                        </select>
+                      <div class="input">
+                        <label for="passwordConfirm">Confirm password</label>
+                        <input
+                            required
+                            type="password"
+                            id="passwordConfirm"
+                            v-model="passwordConfirm"
+                          />
                     </div>
                     <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary addOrg">{{btnTitle}}</button>
+                            <button type="submit" class="btn btn-primary addOrg">Save changes</button>
                             <button type="button" class="btn btn-secondary" @click="close">Cancel</button>
                         </div>
+                      <div class="alert alert-danger" role="alert" v-if="passFailed">
+                        Password doesn't match!
+                    </div>
                 </form>
             </div>  
         </div>
@@ -84,7 +72,7 @@
 </template>
 
 <script>
-import { GET_ORGANISATIONS, ADD_USER, EDIT_USER } from '../../actions'
+import { EDIT_PROFILE } from '../../actions'
 import store from '../../store'
 
 export default {
@@ -95,32 +83,15 @@ export default {
       name: '',
       surname: '',
       password: '',
-      organisation: '',
-      role : '',
-      title: "New user",
-      btnTitle: "Add user",
-      selected: "",
-      disable: false
+      role: '',
+      org : '',
+      passwordConfirm: '',
+      passFailed: false
     }
   },
   mounted() {
     if(this.user) {
       this.setData()
-    }
-    if (store.getters.role === 'ADMIN') {
-      this.organisation = store.getters.org
-      this.selected = this.organisation
-      this.disable = true
-    }
-    else {
-      this.$store.dispatch(GET_ORGANISATIONS)
-                .then( res => console.log(res))
-                .catch(error => alert(error.response.data.msg))
-      }
-  },
-  computed: {
-    organisations() {
-        return store.getters.orgs
     }
   },
    watch: {
@@ -139,32 +110,35 @@ export default {
       this.name = this.user.name
       this.surname = this.user.surname
       this.password = this.user.password
+      this.passwordConfirm = this.user.password
       this.role = this.user.role,
-      this.organisation = this.user.org,
-      this.title = "Edit user"
-      this.btnTitle = "Save changes"
+      this.org = this.user.org
     },
     resetData() {
       this.email = ''
       this.name = ''
       this.surname = ''
       this.password = ''
-      this.role = ''
+      this.role = '',
+      this.org = '',
+      this.passwordConfirm = false
     },
     storeData() {
+      if (this.password !== this.passwordConfirm) {
+        this.passFailed = true
+        return
+      }
       const data = { 
                 email : this.email,
                 name: this.name, 
                 surname: this.surname,
                 password: this.password,
-                org: this.organisation,
+                org: this.org,
                 role: this.role
                 }
-      const action = this.user? EDIT_USER: ADD_USER
-      this.$store.dispatch(action, data)
+    
+      this.$store.dispatch(EDIT_PROFILE, data)
       .then( res => {
-          if (action === EDIT_USER)
-            this.$router.push('/users')
           this.close()
       })
       .catch(error => alert(error.response.data.msg)) 

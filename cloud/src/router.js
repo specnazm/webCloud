@@ -9,6 +9,7 @@ import OrganisationList from './components/organisations/OrganisationList'
 import OrganisationPage from './components/organisations/OrganisationPage'
 import UserList from './components/users/userList'
 import UserPage from './components/users/userPage'
+import UserProfilePage from './components/users/userProfilePage'
 
 Vue.use(VueRouter)
 
@@ -25,7 +26,8 @@ const routes = [
   { path: '/organisations', component: OrganisationList },
   { path: '/organisation/:name', component: OrganisationPage, props: true},
   { path: '/users', component: UserList },
-  { path: '/user/:email', component: UserPage, props: true},
+  { path: '/user/:email', component: UserPage},
+  { path: '/me', component: UserProfilePage },
 
 ]
 

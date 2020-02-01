@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import createPersistedState from "vuex-persistedstate";
 
 import axios from './axios'
-import {AUTH_REQUEST, GET_USER, AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION, GET_USERS, ADD_USER, EDIT_USER, DELETE_USER } from './actions'
+import {AUTH_REQUEST, GET_USER, AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION, GET_USERS, ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE } from './actions'
 import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, SET_USERS, SET_USER, SET_MODIFIED_USER } from './mutations'
 
 Vue.use(Vuex)
@@ -21,7 +21,9 @@ export default new Vuex.Store({
   getters : {
     isAuth: state => { 
       state.user = JSON.parse(localStorage.getItem('user'))
-      return state.user !== null },
+      return state.user !== null 
+    },
+    loggedUser: state =>  JSON.parse(localStorage.getItem('user')),
     role : state =>  { 
       state.user = JSON.parse(localStorage.getItem('user'))
       return state.user ? state.user.role :  ""
@@ -75,7 +77,7 @@ export default new Vuex.Store({
       state.users = [...state.users, user]
     },
     [SET_USER] : (state, user) => {
-      state.selectedUser = user
+      state.selectedUser = {...user}
     },
     [SET_MODIFIED_USER] : (state, user) => {
       const index = state.users.findIndex(us => us.email === user.email)
@@ -221,7 +223,7 @@ export default new Vuex.Store({
     [EDIT_USER]: ({commit, dispatch}, data) => {
  
       return new Promise((resolve, reject) => { 
-        axios(`/org/${data.email}`, {
+        axios(`/user/${data.email}`, {
           method: 'PUT',
           data: JSON.stringify(data)
         })
@@ -249,6 +251,22 @@ export default new Vuex.Store({
         })
       })
     },
-
+    [EDIT_PROFILE]: ({commit, dispatch}, data) => {
+ 
+      return new Promise((resolve, reject) => { 
+        axios(`/me`, {
+          method: 'PUT',
+          data: JSON.stringify(data)
+        })
+        .then(res => {
+          commit(SET_MODIFIED_USER, res.data);
+          localStorage.setItem('user', JSON.stringify(res.data));
+          resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
   }
 })
