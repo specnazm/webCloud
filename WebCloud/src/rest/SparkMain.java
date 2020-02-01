@@ -495,32 +495,52 @@ public class SparkMain {
 			
 		});
 		
-//		delete("/api/user/:id" , (req, res) -> {
-//			Session ss = req.session(true);
-//			User u = ss.attribute("user");
-//			res.type("application/json");
-//			String id = req.params("id");
-//			
-//			if(u == null) {
-//				res.status(400);
-//				msg.addProperty("msg", "No user logged in.");
-//				return g.toJson(msg);
-//			}
-//			
-//			if(u.getRole() == Roles.USER) {
-//				res.status(403);
-//				msg.addProperty("msg", "User lacks permission.");
-//				return g.toJson(msg);
-//			}else if(u.getRole() == Roles.ADMIN) 
-//			{
-//				
-//			}else
-//			{
-//				
-//			}
-//			
-//			
-//		});
+		delete("/api/user/:email" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String email = req.params("email");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(!Cache.getUsers().containsKey(email))
+			{
+				res.status(400);
+				msg.addProperty("msg", "No such user.");
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}
+			else 
+			{
+				if(u.getEmail().equals(email)) {
+					res.status(400);
+					msg.addProperty("msg", "User can't delete self.");
+					return msg;
+				}
+				
+				if(!u.getOrg().equals(Cache.getUsers().get(email).getOrg()) && u.getRole()==Roles.ADMIN)
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin not allowed to delete users from other organisations.");
+					return g.toJson(msg);
+				}
+				
+				Cache.removeUser(Cache.getUsers().get(email));
+				Cache.save();
+				res.status(201);
+				return true;
+			}
+			
+			
+		});
 		
 		
 	}
