@@ -32,7 +32,13 @@ public class User {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
+	
+	public void updateUser(String old_name, String new_name)
+	{
+		if (this.getOrg().equals(old_name))
+			this.setOrg(new_name);
+	}
+	
 	public boolean verify(String email, String password) {
 		if (this.email.equals(email) && this.password.equals(password))
 			return true;

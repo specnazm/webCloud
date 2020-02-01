@@ -8,6 +8,7 @@ import static spark.Spark.patch;
 import static spark.Spark.options;
 import static spark.Spark.before;
 import static spark.Spark.put;
+import static spark.Spark.delete;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -112,11 +113,16 @@ public class SparkMain {
 				return g.toJson(msg);
 			}
 			
-			if(u.getRole() != Roles.SUPER_ADMIN) {
+			if(u.getRole() == Roles.USER) {
 				res.status(403);
 				msg.addProperty("msg", "User lacks permission.");
 				return g.toJson(msg);
-			}else {
+			}else if(u.getRole() == Roles.ADMIN){
+				HashMap<String, Organisation> org = new HashMap<String, Organisation>();
+				org.put(u.getOrg(), Cache.getOrgs().get(u.getOrg()));
+				return g.toJson(org);
+			}else
+			{				
 				return g.toJson(Cache.getOrgs());
 			}
 			
@@ -170,7 +176,7 @@ public class SparkMain {
 			{
 				res.status(400);
 				msg.addProperty("msg", "Can't change name of non-existing organisation.");
-				return true;
+				return g.toJson(msg);
 			}
 			
 			if(u == null) {
@@ -200,7 +206,7 @@ public class SparkMain {
 				
 				if(org.getName() != null)
 				{
-					if(org_name.equals(org.getName()))
+					if(!org_name.equals(org.getName()))
 					{
 						if(Cache.getOrgs().containsKey(org.getName())) 
 						{
@@ -210,6 +216,11 @@ public class SparkMain {
 						}else 
 						{
 							Cache.getOrgs().get(org_name).setName(org.getName());
+							Cache.putOrg(org.getName(), Cache.getOrgs().get(org_name));
+							Cache.getOrgs().remove(org_name);
+							for (User user: Cache.getUsers().values()) {
+								user.updateUser(org_name, org.getName());
+							}
 						}
 					}
 				}
@@ -258,6 +269,76 @@ public class SparkMain {
 		});
 		
 //USER----------------------------------------------------------------------------------------------------------------------------------
+		
+		get("/api/user" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			ArrayList<User> users = new ArrayList<User>();
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}else if(u.getRole() == Roles.ADMIN) 
+			{
+				String org_name = u.getOrg();
+				
+				for (User user : Cache.getUsers().values())
+				{
+					if(user.getOrg().equals(org_name) && !user.getEmail().equals(u.getEmail()))
+						users.add(user);					
+				}
+				res.status(200);
+				return g.toJson(users);
+			}else
+			{
+				String org_name = u.getOrg();
+				
+				for (User user : Cache.getUsers().values())
+				{
+					if(!user.getEmail().equals(u.getEmail()))
+						users.add(user);					
+				}
+				res.status(200);
+				return g.toJson(users);
+			}
+			
+			
+		});
+		
+//		delete("/api/user/:id" , (req, res) -> {
+//			Session ss = req.session(true);
+//			User u = ss.attribute("user");
+//			res.type("application/json");
+//			String id = req.params("id");
+//			
+//			if(u == null) {
+//				res.status(400);
+//				msg.addProperty("msg", "No user logged in.");
+//				return g.toJson(msg);
+//			}
+//			
+//			if(u.getRole() == Roles.USER) {
+//				res.status(403);
+//				msg.addProperty("msg", "User lacks permission.");
+//				return g.toJson(msg);
+//			}else if(u.getRole() == Roles.ADMIN) 
+//			{
+//				
+//			}else
+//			{
+//				
+//			}
+//			
+//			
+//		});
 		
 		
 	}
