@@ -33,7 +33,7 @@ public class Organisation {
 		if (this.name == null || this.name.equals(""))
 			return false;
 		return true;
-	}
+	}	
 	
 	public void updateUsers() {
 		for (User u : this.users.values()) {

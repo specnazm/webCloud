@@ -405,6 +405,58 @@ public class SparkMain {
 			
 		});
 		
+		put("/api/user/:email" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String user_email = req.params("email");
+			
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(!Cache.getUsers().containsKey(user_email)) {
+				res.status(400);
+				msg.addProperty("msg", "No user with such email exists.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to edit users.");
+				return g.toJson(msg);
+			}
+			else 
+			{
+				
+				String payload = req.body();
+				User payload_user = g.fromJson(payload, User.class); 
+				
+				if (u.getRole() == Roles.ADMIN && !u.getOrg().equals(payload_user.getOrg()))
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin lacks permission to edit user from other organisations.");
+					return g.toJson(msg);
+				}
+				
+				User tmp = Cache.getUsers().get(user_email);
+				tmp.setName(payload_user.getName());
+				tmp.setPassword(payload_user.getPassword());
+				tmp.setRole(payload_user.getRole());
+				tmp.setSurname(payload_user.getSurname());
+				Cache.removeUser(tmp);
+				Cache.putUser(tmp.getEmail(), tmp);
+				Cache.save();
+				return g.toJson(tmp);
+				
+			}
+			
+		});
+		
+		
 //		delete("/api/user/:id" , (req, res) -> {
 //			Session ss = req.session(true);
 //			User u = ss.attribute("user");
