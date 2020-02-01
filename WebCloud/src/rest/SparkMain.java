@@ -489,10 +489,17 @@ public class SparkMain {
 			tmp.setSurname(payload_user.getSurname());
 			tmp.setRole(u.getRole());
 			tmp.setOrg(u.getOrg());
-			System.out.println(tmp.getEmail());
-			System.out.println(u.getEmail());
-			Cache.removeUser(u);
-			Cache.putUser(tmp.getEmail(), tmp);
+			
+			if(u.getRole() == Roles.SUPER_ADMIN) {
+				Cache.getUsers().remove(u.getEmail());
+				Cache.getUsers().put(tmp.getEmail(), tmp);
+			}
+			else
+			{
+				Cache.removeUser(u);
+				Cache.putUser(tmp.getEmail(), tmp);
+			}
+						
 			Cache.save();
 			ss.attribute("user", tmp);
 			return g.toJson(tmp);				
