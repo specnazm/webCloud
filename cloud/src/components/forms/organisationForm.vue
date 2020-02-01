@@ -67,7 +67,6 @@ export default {
       }
     },
     mounted() {
-      console.log('ovde')
       if(this.org) {
         this.setData()
       }
@@ -124,12 +123,12 @@ export default {
               this.$router.push('/organisations')
             this.close()
         })
-        .catch(error => console.log(error))
+        .catch(error => alert(error.response.data.msg))
     }
     }
 }
 </script>
 
 <style scoped>
-@import '../../css/organisationForm.css';
+@import '../../css/form.css';
 </style>

@@ -11,7 +11,7 @@
             </p>
             <div class="row">
                 <div class="col-xs-12 col-md-6">
-                    <a class="btn btn-success" :href="url" @click="setOrg">More info</a>
+                    <a class="btn" :href="url" @click="setOrg">More info</a>
                 </div>
             </div>
         </div>
@@ -21,6 +21,7 @@
 
 <script>
 import { SET_ORGANISATION } from '../../mutations'
+import store from '../../store'
 
     export default {
         name: "organisation",
@@ -32,7 +33,7 @@ import { SET_ORGANISATION } from '../../mutations'
         },
         methods: {
             setOrg() {
-                this.$store.commit(SET_ORGANISATION, this.organisation)
+                store.commit(SET_ORGANISATION, this.organisation)
             }
         }
     }
@@ -44,4 +45,12 @@ img {
     height: 150px;
     background-size: cover;
 }
+.btn {
+    background-color: #ff9f1a
+}
+.btn:hover {
+    background: #b36800;
+    color: #fff;
+}
+
 </style>

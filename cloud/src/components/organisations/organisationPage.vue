@@ -30,18 +30,18 @@
                             <span class="review-no">Number of resources in organisation : {{rsrcNum}}</span>
 						</div>
 						<p class="product-description">{{desc}}</p>
-						<h5 class="sizes">Resources:
+						<h5 class="list-group list-group-flush"><b>Resouruces</b>
                             <ul>
                             <li 
-                                class="size" data-toggle="tooltip" title="small"
+                                 class="list-group-item list-group-item-secondary"
                                 v-for="res in rsrc" :key="res.name">{{res.name}} </li>
                             </ul>
 						</h5>
-						<h5 class="sizes">Users:
-                            <ul>
+						<h5 class="list-group list-group-flush"><b>Users</b>
+                            <ul  class="list-group-item list-group-item-secondary"  v-for="user in users" :key="user.email">
                             <li 
-                                class="size" data-toggle="tooltip" title="small"
-                                v-for="user in users" :key="user.email">{{user.name}} {{user.surname}} </li>
+                                class="user" title="small"
+                               >{{user.name}} {{user.surname}} </li>
                             </ul>
 						</h5>
 						<div class="action">
@@ -76,7 +76,7 @@ export default {
     },
     computed: {
         org() {
-            return this.$store.getters.organisation 
+            return this.$store.getters.selectedOrg 
         },
         userNum() {
             return Object.keys(this.users).length
@@ -100,12 +100,18 @@ export default {
     mounted() {
         this.routeName =  this.$route.params.name
         const data = { name: this.routeName }
-        this.$store.dispatch(GET_ORGANISATION, data)
+        if (this.org)
+            if(this.org.name === data.name)
+                this.setData()
+        else {
+            this.$store.dispatch(GET_ORGANISATION, data)
             .then( res => this.setData(res.data))
             .catch(error => {
                 this.$router.push('/dashboard');
                 alert(error.response.data.msg)
             })
+        }
+  
     }
 }
 </script>

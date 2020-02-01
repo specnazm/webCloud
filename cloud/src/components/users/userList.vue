@@ -22,7 +22,7 @@
       <th scope="col">Organisation</th>
     </tr>
   </thead>
-  <tbody v-for="(user, ind) in users" :key="user.email" @click="userInfo(user)">
+  <tbody class="user" v-for="(user, ind) in users" :key="user.email" @click="userInfo(user)">
     <tr>
       <th scope="row">{{index(ind)}}</th>
       <td>{{user.email}}</td>
@@ -39,6 +39,7 @@
 import Form from '../forms/userForm'
 import { GET_USERS } from '../../actions'
 import store from '../../store'
+import { SET_USER } from '../../mutations'
 
   export default {
       name: "users",
@@ -68,6 +69,7 @@ import store from '../../store'
             return ind + 1
           },
           userInfo(user) {
+            store.commit(SET_USER, user)
             this.$router.push(`/user/${user.email}`)
           }
       },
@@ -81,3 +83,9 @@ import store from '../../store'
         }  
   }
 </script>
+
+<style scoped>
+.user:hover {
+  cursor: pointer;
+}
+</style>

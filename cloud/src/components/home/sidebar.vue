@@ -1,6 +1,6 @@
 <template>
     <div class="sidebar">
-        <div class="sidebar-backdrop"  v-if="isOpen"></div>
+        <div class="sidebar-backdrop" v-if="isOpen"></div>
         <transition name="slide">
             <div v-if="isOpen"
                  class="sidebar-panel bg-dark">

@@ -13,7 +13,7 @@
               </div>
               <div class="modal-body">
                 <form @submit.prevent="storeData">
-                   <div class="input">
+                   <div v-if="!user" class="input">
                         <label for="email">Email</label>
                         <input
                             required
@@ -32,6 +32,7 @@
                     <div class="input">
                         <label for="surname">Surname</label>
                         <input
+                            required
                             type="text"
                             id="surname"
                             v-model="surname">
@@ -39,13 +40,15 @@
                     <div class="input">
                         <label for="password">Password</label>
                         <input
+                            required
                             type="password"
                             id="password"
                             v-model="password">
                     </div>
-                     <div class="input">
+                     <div v-if="!user" class="input">
                         <label for="organisation">Organisation</label>
                         <select 
+                          required
                           class="form-control" 
                           v-model="organisation" 
                           :disabled="disable"
@@ -53,6 +56,17 @@
                           <option v-for="org in organisations" v-bind:value="org.name" :key="org.name">
                            {{ org.name }}
                           </option>
+                        </select>
+                    </div>
+                    <div class="input">
+                        <label for="role">Role</label>
+                        <select 
+                          required
+                          class="form-control" 
+                          v-model="role" 
+                        >
+                          <option>ADMIN</option>
+                          <option>USER</option>
                         </select>
                     </div>
                     <div class="modal-footer">
@@ -70,94 +84,94 @@
 </template>
 
 <script>
-import { GET_ORGANISATIONS, ADD_USER } from '../../actions'
+import { GET_ORGANISATIONS, ADD_USER, EDIT_USER } from '../../actions'
 import store from '../../store'
+
 export default {
-    props: ['showModal', 'user'],
-     data () {
-      return {
-        email: '',
-        name: '',
-        surname: '',
-        password: '',
-        organisation: '',
-        role : '',
-        title: "New user",
-        btnTitle: "Add user",
-        selected: "",
-        disable: false
+  props: ['showModal', 'user'],
+  data () {
+    return {
+      email: '',
+      name: '',
+      surname: '',
+      password: '',
+      organisation: '',
+      role : '',
+      title: "New user",
+      btnTitle: "Add user",
+      selected: "",
+      disable: false
+    }
+  },
+  mounted() {
+    if(this.user) {
+      this.setData()
+    }
+    if (store.getters.role === 'ADMIN') {
+      this.organisation = store.getters.org
+      this.selected = this.organisation
+      this.disable = true
+    }
+    else {
+      this.$store.dispatch(GET_ORGANISATIONS)
+                .then( res => console.log(res))
+                .catch(error => alert(error.response.data.msg))
       }
-    },
-    mounted() {
-      if(this.user) {
-        this.setData()
-      }
-      if (store.getters.role === 'ADMIN') {
-        this.organisation = store.getters.org
-        this.selected = this.organisation
-        this.disable = true
-      }
-      else {
-        this.$store.dispatch(GET_ORGANISATIONS)
-                  .then( res => console.log(res))
-                  .catch(error => alert(error.response.data.msg))
-        }
-    },
-    watch: {
+  },
+  computed: {
+    organisations() {
+        return store.getters.orgs
+    }
+  },
+   watch: {
       user() {
         this.setData()
       }
+   },
+  methods: {
+    close() {
+      this.$emit('closeModal')
+      if (!this.user)
+        this.resetData()
     },
-     computed: {
-            organisations() {
-                return this.$store.getters.orgs
-            }
-        },
-    methods: {
-      close() {
-        this.$emit('closeModal')
-        if (!this.user)
-          this.resetData()
-      },
-      setData() {
-        this.name = this.org.name
-        this.description = this.org.desc
-        this.logo = this.org.logo_url
-        this.title = "Edit user"
-        this.btnTitle = "Save changes"
-      },
-      resetData() {
-        this.name = ''
-        this.description = ''
-        this.logo = null
-        this.nameNotUnique = false
+    setData() {
+      this.email = this.user.email
+      this.name = this.user.name
+      this.surname = this.user.surname
+      this.password = this.user.password
+      this.role = this.user.role
+      this.title = "Edit user"
+      this.btnTitle = "Save changes"
     },
-      storeData() {
-        const data = { 
-                  email : this.email,
-                  name: this.name, 
-                  surname: this.surname,
-                  password: this.password,
-                  org: this.organisation,
-                  role: this.role
-                  }
-        let action = ADD_USER
-        if (this.org) {
-          action = EDIT_ORGANISATION
-          data.oldName = this.org.name
-        }
-        this.$store.dispatch(action, data)
-        .then( res => {
-            if (action === EDIT_ORGANISATION)
-              this.$router.push('/organisations')
-            this.close()
-        })
-        .catch(error => console.log(error))
-    }
-    }
+    resetData() {
+      this.email = ''
+      this.name = ''
+      this.surname = ''
+      this.password = ''
+      this.role = ''
+    },
+    storeData() {
+      const data = { 
+                email : this.email,
+                name: this.name, 
+                surname: this.surname,
+                password: this.password,
+                org: this.organisation,
+                role: this.role
+                }
+      const action = this.user? EDIT_USER: ADD_USER
+      this.$store.dispatch(action, data)
+      .then( res => {
+          if (action === EDIT_USER)
+            this.$router.push('/users')
+          this.close()
+      })
+      .catch(error => aler(error.response.data.msg)) 
+  }
+  }
 }
 </script>
 
 <style scoped>
-@import '../../css/organisationForm.css';
+@import '../../css/form.css';
 </style>
