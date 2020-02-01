@@ -5,3 +5,8 @@ export const ADD_ORG = 'ADD_ORG'
 export const SET_ORGANISATIONS = 'SET_ORGANISATIONS'
 export const SET_ORGANISATION = 'SET_ORGANISATION'
 export const SET_MODIFIED_ORG = 'SET_MODIFIED_ORG'
+
+export const ADD_USER = 'ADD_USER'
+export const SET_USERS = 'SET_USERS'
+export const SET_USER = 'SET_USER'
+export const SET_MODIFIED_USER = 'SET_MOSET_MODIFIED_USERDIFIED_ORG'

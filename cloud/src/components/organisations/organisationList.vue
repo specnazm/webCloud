@@ -43,7 +43,7 @@
         mounted() {
             this.$store.dispatch(GET_ORGANISATIONS)
                 .then( res => console.log(res))
-                .catch(error => alert("Sorry, something went wrong!"))
+                .catch(error => alert(error.response.data.msg))
         },
         methods: {
             closeModal() {

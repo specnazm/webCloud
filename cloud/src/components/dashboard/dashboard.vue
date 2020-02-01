@@ -31,19 +31,11 @@ export default {
   mounted() {
   //   this.$store.dispatch(GET_ORGANISATIONS)
   //       .then( res => this.organisations = res.data)
-  //       .catch(error => alert("Sorry, something went wrong!"))
+  //       .catch(error => alert("error.response.data.msg"))
    }
 }
 </script>
 
 <style>
-html {
-   height: 100%;
-   overflow:auto;
- }
- body {
-   border: 0; margin: 0; padding: 0;
-   font-family: 'Lato';
-   height: 100
- }
+   @import '../../css/dashboard.css';
 </style>

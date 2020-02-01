@@ -1,63 +1,83 @@
 <template>
-<table id="users">
-  <thead class="table table-dark">
+<div id="users" class="container">
+    <Form :showModal="showModal" @closeModal="closeModal"/>
+    <div class="row">
+        <div class="col-lg-12 my-3">
+            <div class="pull-right">
+                <div class="btn-group">
+                    <button class="btn btn-info" id="list" @click="showModal = true">
+                        Add new user
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> 
+<table class="table table-hover" >
+  <thead>
     <tr>
       <th scope="col">#</th>
-      <th scope="col">First</th>
-      <th scope="col">Last</th>
-      <th scope="col">Handle</th>
+      <th scope="col">Email</th>
+      <th scope="col">Name</th>
+      <th scope="col">Surname</th>
+      <th scope="col">Organisation</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody v-for="(user, ind) in users" :key="user.email" @click="userInfo(user)">
     <tr>
-      <th scope="row">1</th>
-      <td>Mark</td>
-      <td>Otto</td>
-      <td>@mdo</td>
-    </tr>
-    <tr>
-      <th scope="row">2</th>
-      <td>Jacob</td>
-      <td>Thornton</td>
-      <td>@fat</td>
-    </tr>
-    <tr>
-      <th scope="row">3</th>
-      <td>Larry</td>
-      <td>the Bird</td>
-      <td>@twitter</td>
+      <th scope="row">{{index(ind)}}</th>
+      <td>{{user.email}}</td>
+      <td>{{user.name}}</td>
+      <td>{{user.surname}}</td>
+      <td>{{user.org}}</td>
     </tr>
   </tbody>
-</table>  
+</table>
+</div>
 </template>
 
 <script>
+import Form from '../forms/userForm'
+import { GET_USERS } from '../../actions'
+import store from '../../store'
 
-
-    export default {
-        name: "organisationList",
-        components: {
-   
-        },
-        data : function() {
-            return {
-            showModal : false
+  export default {
+      name: "users",
+      components: {
+        Form
+      },
+      data : function() {
+          return {
+          showModal : false
+          }
+      },
+      computed: {
+          users() {
+            return this.$store.getters.users
+          }
+      },
+      mounted() {
+          this.$store.dispatch(GET_USERS)
+              .then( res => console.log(res))
+              .catch(error => alert(error.response.data.msg))
+      },
+      methods: {
+          closeModal() {
+              this.showModal = false
+          },
+          index(ind) {
+            return ind + 1
+          },
+          userInfo(user) {
+            this.$router.push(`/user/${user.email}`)
+          }
+      },
+       beforeRouteEnter(to,from,next) {
+            const role = store.getters.role
+            if ( role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
+                next('/dashboard')
+            } else {
+                next()
             }
-        },
-        computed: {
-            organisations() {
-                return this.$store.getters.orgs
-            }
-        },
-        mounted() {
-            this.$store.dispatch(GET_ORGANISATIONS)
-                .then( res => console.log(res))
-                .catch(error => alert(error.response.data.msg))
-        },
-        methods: {
-            closeModal() {
-                this.showModal = false;
-            }
-        }
-    }
+        }  
+  }
 </script>

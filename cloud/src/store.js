@@ -3,8 +3,8 @@ import Vuex from 'vuex'
 import createPersistedState from "vuex-persistedstate";
 
 import axios from './axios'
-import {AUTH_REQUEST,AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION } from './actions'
-import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG } from './mutations'
+import {AUTH_REQUEST,AUTH_LOGOUT, GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION, GET_USERS } from './actions'
+import { AUTH_ERROR, AUTH_SUCCESS, ADD_ORG, SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, SET_USERS } from './mutations'
 
 Vue.use(Vuex)
 
@@ -14,16 +14,24 @@ export default new Vuex.Store({
     user: null,
     status: null,
     organisations: [],
-    organisation: null
+    organisation: null,
+    users: []
   },
   getters : {
     isAuth: state => { 
       state.user = JSON.parse(localStorage.getItem('user'))
       return state.user !== null },
-    role : state =>  state.user ? state.user.role : "" ,
-    org: state => state.user ? state.user.org :  "",
+    role : state =>  { 
+      state.user = JSON.parse(localStorage.getItem('user'))
+      return state.user ? state.user.role :  ""
+     },
+    org: state => { 
+      state.user = JSON.parse(localStorage.getItem('user'))
+      return state.user ? state.user.org :  ""
+    },
     orgs: state => state.organisations,
-    organisation: state => state.organisation
+    organisation: state => state.organisation,
+    users: state => state.users
   },
   mutations: {
     [AUTH_REQUEST]: (state) => {
@@ -57,6 +65,9 @@ export default new Vuex.Store({
           newState[orgName] = state.organisations[orgName]
     }
       state.organisations = newState;
+    },
+    [SET_USERS] : (state, users) => {
+      state.users = users
     }
   },
   actions: {
@@ -125,7 +136,7 @@ export default new Vuex.Store({
     [EDIT_ORGANISATION]: ({commit, dispatch}, data) => {
       const dataServer = { name: data.name, desc: data.description, logo_url: data.logo}
       return new Promise((resolve, reject) => { 
-        axios(`/org/${data.name}`, {
+        axios(`/org/${data.oldName}`, {
           method: 'PUT',
           data: JSON.stringify(dataServer),
           headers: {
@@ -149,6 +160,18 @@ export default new Vuex.Store({
         axios.get(`/org/${name}`)
         .then(res => {
           commit(SET_ORGANISATION, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [GET_USERS]: ({commit, dispatch}) => {
+      return new Promise((resolve, reject) => { 
+        axios.get('/user')
+        .then(res => {
+          commit(SET_USERS, res.data);
           resolve(res)
         })
         .catch(err => {

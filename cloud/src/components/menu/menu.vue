@@ -2,7 +2,10 @@
 <div id="menu">
     <UserInfo></UserInfo>
    <ul class="sidebar-panel-nav">
-    <li><router-link to="/users" v-if="role !== 'USER'">Users</router-link></li>
+    <li><router-link 
+            to="/users" 
+            v-if="role !== 'USER'"
+            @click.native="toggleSideBar">Users</router-link></li>
     <li><router-link 
             to="/organisations"  
             v-if="role !== 'USER'"
@@ -11,9 +14,13 @@
             Organizations
          </router-link>
    </li>
-    <li><router-link to="/categories"  v-if="role !== 'USER'">Categories</router-link></li>
-    <li><router-link to="/drives">Drives</router-link></li>
-    <li><router-link to="/profile">Account settings</router-link></li>
+    <li><router-link 
+            to="/categories"  
+            v-if="role !== 'USER'"
+            @click.native="toggleSideBar"
+            >Categories</router-link></li>
+    <li><router-link to="/drives" @click.native="toggleSideBar">Drives</router-link></li>
+    <li><router-link to="/profile" @click.native="toggleSideBar">Account settings</router-link></li>
     </ul>
 </div>
 </template>
@@ -40,27 +47,5 @@ methods: {
 </script>
 
 <style scoped>
-ul.sidebar-panel-nav {
-   list-style-type: none;
-    display: table-cell;
- }
-
-ul.sidebar-panel-nav > li  {
-   color: #fff;
-   text-decoration: none;
-   font-size: 1.5rem;
-   display: block;
-   padding-bottom: 0.5em;
- }
-
- li a {
-    text-decoration: none;
-    color: white;
-  }
-
-  li a:hover,
-  li a:active,
-  li a.router-link-active {
-    color: #fa923f;
-  }
+   @import '../../css/menu.css';
 </style>
