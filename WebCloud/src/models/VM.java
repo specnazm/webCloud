@@ -81,4 +81,13 @@ public class VM {
 		this.ram = ram;
 	}
 	
+	public void updateCat(String name, VMCategory cat)
+	{
+		if(this.category.equals(name)) {
+			this.cpuCores = cat.getCpuCores();
+			this.gpuCores = cat.getGpuCores();
+			this.ram = cat.getRam();
+			this.category = cat.getName();
+		}
+	}
 }
