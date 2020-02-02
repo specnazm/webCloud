@@ -152,6 +152,12 @@ public class Cache {
 		Cache.getVms().get(disc.getVm()).getDiscs().put(name, disc);
 		Cache.getDiscs().put(name, disc);		
 	}
+
+	public static void removeDisc(String disc_name) {
+		Cache.getVms().get(Cache.getDiscs().get(disc_name).getVm()).getDiscs().remove(disc_name);
+		Cache.getDiscs().remove(disc_name);
+		
+	}
 	
 	
 }

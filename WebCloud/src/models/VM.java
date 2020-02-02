@@ -100,5 +100,11 @@ public class VM {
 		this.discs = discs;
 	}
 	
-	
+	public void updateDisc(String old, Disc new_disc)
+	{
+		if(this.discs.containsKey(old))
+			this.discs.remove(old);
+		if (new_disc.getVm().equals(this.name))
+			this.discs.put(new_disc.getName(), new_disc);
+	}
 }

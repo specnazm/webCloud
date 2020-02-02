@@ -808,6 +808,134 @@ public class SparkMain {
 				}
 			}
 		});
+		
+		delete("/api/disc/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String disc_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to remove discs");
+				return g.toJson(msg);
+			}else
+			{
+				if(!Cache.getDiscs().containsKey(disc_name))
+				{
+					res.status(400);
+					msg.addProperty("msg", "No disc with such name exists.");
+					return g.toJson(msg);
+				}
+				
+				if(Cache.getDiscs().get(disc_name).getVm() != null)
+					Cache.removeDisc(disc_name);
+				else
+					Cache.getDiscs().remove(disc_name);
+				Cache.save();
+				res.status(200);
+				return true;
+			}
+			
+		});
+		
+		put("/api/disc/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String disc_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to remove discs");
+				return g.toJson(msg);
+			}else
+			{
+				String payload = req.body();
+				Disc disc = g.fromJson(payload, Disc.class);
+				
+				if(!disc.checkRequired())
+				{
+					res.status(400);
+					msg.addProperty("msg", "Fields missing");
+					return msg;
+				}
+				
+				if(disc.getOrg()!= Cache.getDiscs().get(disc_name).getOrg())
+				{
+					res.status(400);
+					msg.addProperty("msg", "Can't change organisation of disc.");
+					return msg;
+				}
+				
+				if(u.getRole() == Roles.ADMIN && !(u.getOrg().equals(disc.getOrg())))
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin can't change disc from different organisation.");
+					return msg;
+				}
+				
+				for (VM vm : Cache.getVms().values()) {
+					vm.updateDisc(disc_name, disc);
+				}
+				
+				Cache.getDiscs().put(disc.getName(), disc);
+				Cache.save();
+				res.status(200);
+				return g.toJson(disc);
+			}
+			
+		});
+		
+		get("/api/disc/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String disc_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}else
+			{
+				if(!Cache.getDiscs().containsKey(disc_name)) 
+				{
+					res.status(400);
+					msg.addProperty("msg", "No such category exists.");
+					return g.toJson(msg);
+				}
+				
+				if(u.getRole()==Roles.ADMIN && !(u.getOrg().equals(Cache.getDiscs().get(disc_name).getOrg())))
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin can't view discs of other organisations.");
+					return msg;
+				}
+				
+				res.status(200);
+				return g.toJson(Cache.getDiscs().get(disc_name));
+			}
+			
+		}); 
 	
 //VM----------------------------------------------------------------------------------------------------------------------------------	
 		get("/api/vm" , (req, res) -> {
@@ -859,6 +987,8 @@ public class SparkMain {
 			}
 			
 		});
+		
+		
 		
 	}
 
