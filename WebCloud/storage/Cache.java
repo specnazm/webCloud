@@ -15,6 +15,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
+import src.models.Disc;
 import src.models.Organisation;
 import src.models.User;
 import src.models.VM;
@@ -25,6 +26,7 @@ public class Cache {
 	private static HashMap<String, Organisation> orgs;
 	private static HashMap<String, VMCategory> categories;
 	private static HashMap<String, VM> vms;
+	private static HashMap<String, Disc> discs;
 	private static Gson gson;
 	
 	public static void putOrg(String name, Organisation org)
@@ -69,7 +71,10 @@ public class Cache {
 		w = new FileWriter("storage/vms.json");
 		Cache.gson.toJson(Cache.vms, w);
 		w.close();
-		System.out.println(Cache.vms);
+		w = new FileWriter("storage/discs.json");
+		Cache.gson.toJson(Cache.discs, w);
+		w.close();
+		
 	}
 	
 	public static void load() throws IOException
@@ -78,6 +83,7 @@ public class Cache {
 		Type type_org = new TypeToken<HashMap<String, Organisation>>(){}.getType();
 		Type type_category = new TypeToken<HashMap<String, VMCategory>>(){}.getType();
 		Type type_vm = new TypeToken<HashMap<String, VM>>(){}.getType();
+		Type type_disc = new TypeToken<HashMap<String, Disc>>(){}.getType();
 		
 		Cache.gson = new GsonBuilder().create();
 		BufferedReader br = new BufferedReader(new FileReader("storage/users.json"));
@@ -91,6 +97,9 @@ public class Cache {
 		br.close();
 		br = new BufferedReader(new FileReader("storage/vms.json"));
 		Cache.setVms(Cache.gson.fromJson(br, type_vm));
+		br.close();
+		br = new BufferedReader(new FileReader("storage/discs.json"));
+		Cache.setDiscs(Cache.gson.fromJson(br, type_disc));
 		br.close();
 	}
 	
@@ -121,6 +130,22 @@ public class Cache {
 
 	public static void setVms(HashMap<String, VM> vms) {
 		Cache.vms = vms;
+	}
+
+	public static HashMap<String, Disc> getDiscs() {
+		return discs;
+	}
+
+	public static void setDiscs(HashMap<String, Disc> discs) {
+		Cache.discs = discs;
+	}
+
+	public static Gson getGson() {
+		return gson;
+	}
+
+	public static void setGson(Gson gson) {
+		Cache.gson = gson;
 	}
 	
 	

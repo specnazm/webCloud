@@ -9,7 +9,7 @@ public class VM {
 	private Integer cpuCores;
 	private Integer gpuCores;
 	private Integer ram;
-//	private HashMap<String, Disc> discs;
+	private HashMap<String, Disc> discs;
 	
 	
 	public boolean checkRequired() {
@@ -23,7 +23,7 @@ public class VM {
 		// TODO Auto-generated constructor stub
 	}
 
-	public VM(String name, String org, String category, Integer cpuCores, Integer gpuCores, Integer ram) {
+	public VM(String name, String org, String category, Integer cpuCores, Integer gpuCores, Integer ram, HashMap<String, Disc> discs) {
 	super();
 	this.name = name;
 	this.org = org;
@@ -31,6 +31,7 @@ public class VM {
 	this.cpuCores = cpuCores;
 	this.gpuCores = gpuCores;
 	this.ram = ram;
+	this.discs = discs;
 }
 
 	public String getName() {
@@ -90,4 +91,14 @@ public class VM {
 			this.category = cat.getName();
 		}
 	}
+
+	public HashMap<String, Disc> getDiscs() {
+		return discs;
+	}
+
+	public void setDiscs(HashMap<String, Disc> discs) {
+		this.discs = discs;
+	}
+	
+	
 }

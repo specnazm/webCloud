@@ -25,6 +25,7 @@ import src.models.Roles;
 import src.models.User;
 import src.models.VM;
 import src.models.VMCategory;
+import src.models.Disc;
 import storage.Cache;
 
 public class SparkMain {
@@ -37,7 +38,6 @@ public class SparkMain {
 		
 		
 		Cache.load();
-
 		
 		options("/*",
 		        (request, response) -> {
@@ -555,7 +555,7 @@ public class SparkMain {
 			
 		});
 		
-//CATEGORIES
+//CATEGORIES----------------------------------------------------------------------------------------------------------------------------------
 		
 		get("/api/category" , (req, res) -> {
 			Session ss = req.session(true);
@@ -732,7 +732,36 @@ public class SparkMain {
 			
 		}); 
 		
-		
+//DISCS----------------------------------------------------------------------------------------------------------------------------------
+	
+		get("/api/disc" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			HashMap<String, Disc> discs = new HashMap<String,Disc>();
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				String org_name = u.getOrg();
+				for (VM vm : Cache.getOrgs().get(org_name).getRsrc().values())
+				{
+					discs.putAll(vm.getDiscs());
+				}
+				res.status(200);
+				return g.toJson(discs.values());
+			}else
+			{
+				res.status(200);
+				return g.toJson(Cache.getDiscs().values());
+			}
+			
+		});
+	
 	}
 
 }
