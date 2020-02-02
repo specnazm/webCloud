@@ -794,7 +794,7 @@ public class SparkMain {
 						return g.toJson(msg);
 					}else {
 						res.status(200);
-						if (!(disc.getVm() == null))
+						if (!(disc.getVm() == ""))
 							Cache.putDisc(disc.getName(), disc);
 						else
 							Cache.getDiscs().put(disc.getName(), disc);
@@ -873,9 +873,11 @@ public class SparkMain {
 					return msg;
 				}
 				
-				if(disc.getOrg()!= Cache.getDiscs().get(disc_name).getOrg())
+				if(!disc.getOrg().equals(Cache.getDiscs().get(disc_name).getOrg()))
 				{
 					res.status(400);
+					System.out.println(disc.getOrg());
+					System.out.println(Cache.getDiscs().get(disc_name).getOrg());
 					msg.addProperty("msg", "Can't change organisation of disc.");
 					return msg;
 				}

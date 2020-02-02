@@ -1,6 +1,7 @@
 package src.models;
 
 import java.util.HashMap;
+import src.models.*;
 
 public class VM {
 	private String name;
@@ -102,6 +103,7 @@ public class VM {
 	
 	public void updateDisc(String old, Disc new_disc)
 	{
+		
 		if(this.discs.containsKey(old))
 			this.discs.remove(old);
 		if (new_disc.getVm().equals(this.name))
