@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -1275,6 +1275,46 @@ public class SparkMain {
 			
 		});
 		
+		get("/api/vm/search" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			Set<String> vms;
+			if(u.getRole() != Roles.SUPER_ADMIN)
+				vms = Cache.getOrgs().get(u.getOrg()).getRsrc().keySet();
+			else
+				vms = Cache.getVms().keySet();
+			
+			Integer cpuHigh  = (req.queryParams().contains("cpuHigh")) ? Integer.parseInt(req.queryParams("cpuHigh")) :  99999;
+			Integer cpuLow  = (req.queryParams().contains("cpuLow")) ? Integer.parseInt(req.queryParams("cpuLow")) :  0;
+			Integer gpuHigh  = (req.queryParams().contains("gpuHigh")) ? Integer.parseInt(req.queryParams("gpuHigh")) :  99999;
+			Integer gpuLow  = (req.queryParams().contains("gpuLow")) ? Integer.parseInt(req.queryParams("gpuLow")) :  0;
+			Integer ramHigh  = (req.queryParams().contains("ramHigh")) ? Integer.parseInt(req.queryParams("ramHigh")) :  99999;
+			Integer ramLow  = (req.queryParams().contains("ramLow")) ? Integer.parseInt(req.queryParams("ramLow")) :  0;
+			Integer cpu;
+			Integer gpu;
+			Integer ram;
+			HashMap<String, VM> vm_map = new HashMap<String, VM>();
+			
+			for (String name : vms) {
+				cpu = Cache.getVms().get(name).getCpuCores();
+				gpu = Cache.getVms().get(name).getGpuCores();
+				ram = Cache.getVms().get(name).getRam();
+				if(cpu > cpuLow && cpu < cpuHigh && gpu > gpuLow && gpu < gpuHigh && ram > ramLow && ram < ramHigh)
+					vm_map.put(name, Cache.getVms().get(name));
+			}
+			
+			res.status(200);
+			return g.toJson(vm_map.values());
+			
+		}); 
 	}
 
 }
