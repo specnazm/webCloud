@@ -912,8 +912,6 @@ public class SparkMain {
 				if(!disc.getOrg().equals(Cache.getDiscs().get(disc_name).getOrg()))
 				{
 					res.status(400);
-					System.out.println(disc.getOrg());
-					System.out.println(Cache.getDiscs().get(disc_name).getOrg());
 					msg.addProperty("msg", "Can't change organisation of disc.");
 					return msg;
 				}
@@ -931,7 +929,7 @@ public class SparkMain {
 					vm.updateDisc(disc_name, disc);
 				}
 				
-				if(!disc.getName().equals(disc_name))
+				if(!disc.getName().equals(disc_name)) {
 					if(Cache.getDiscs().containsKey(disc.getName()))
 					{
 						res.status(400);
@@ -939,7 +937,7 @@ public class SparkMain {
 						return msg;
 					}
 					Cache.getDiscs().remove(disc_name);
-					
+			}
 				Cache.getDiscs().put(disc.getName(), disc);
 				Cache.save();
 				res.status(200);
@@ -1165,7 +1163,7 @@ public class SparkMain {
 			
 		});
 		
-		post("/api/vm/toggle/:name" , (req, res) -> {
+		patch("/api/vm/toggle/:name" , (req, res) -> {
 			Session ss = req.session(true);
 			User u = ss.attribute("user");
 			res.type("application/json");
@@ -1205,6 +1203,72 @@ public class SparkMain {
 			
 		}); 
 		
+		put("/api/vm/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String vm_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to remove discs");
+				return g.toJson(msg);
+			}else
+			{
+				String payload = req.body();
+				VM vm = g.fromJson(payload, VM.class);
+				
+				
+				
+				if(!vm.checkRequired())
+				{
+					res.status(400);
+					msg.addProperty("msg", "Fields missing");
+					return msg;
+				}
+				
+				if(!vm.getOrg().equals(Cache.getDiscs().get(vm_name).getOrg()))
+				{
+					res.status(400);
+					msg.addProperty("msg", "Can't change organisation of VM.");
+					return msg;
+				}
+				
+				if(u.getRole() == Roles.ADMIN && !(u.getOrg().equals(vm.getOrg())))
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin can't change VM from different organisation.");
+					return msg;
+				}
+								
+				
+				if(!vm.getName().equals(vm_name)) 
+				{
+					if(Cache.getVms().containsKey(vm.getName()))
+					{
+						res.status(400);
+						msg.addProperty("msg", "Can't change disc name to existing disc name.");
+						return msg;
+					}
+					for (Disc d : Cache.getVms().get(vm_name).getDiscs().values()) {
+						d.updateVM(vm_name, vm.getName());
+					}
+					Cache.getVms().remove(vm_name);
+				}	
+				
+				Cache.getVms().put(vm.getName(), vm);
+				Cache.save();
+				res.status(200);
+				return g.toJson(vm);
+			}
+			
+		});
 		
 	}
 
