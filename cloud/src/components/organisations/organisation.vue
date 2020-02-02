@@ -7,7 +7,7 @@
         <div class="caption card-body">
             <h4 class="group card-title inner list-group-item-heading">{{organisation.name}}</h4>
             <p class="group inner list-group-item-text">
-                {{organisation.desc}} 
+                {{organisation.desc.slice(0,100)}} 
             </p>
             <div class="row">
                 <div class="col-xs-12 col-md-6">

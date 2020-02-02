@@ -60,7 +60,6 @@ import Form from '../forms/organisationForm'
 import { SET_ORGANISATION } from '../../mutations'
 
 export default {
-    props: ['name'],
     name: "organisationPage",
      components: {
             Form

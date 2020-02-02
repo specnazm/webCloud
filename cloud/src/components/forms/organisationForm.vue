@@ -112,6 +112,7 @@ export default {
                     desc: this.desc, 
                     logo: this.logo
                     }
+        console.log('u org form', data)
         let action = ADD_ORGANISATION
         if (this.org) {
           action = EDIT_ORGANISATION

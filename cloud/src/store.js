@@ -7,12 +7,14 @@ import {
   AUTH_REQUEST, AUTH_LOGOUT,  
   GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION, 
   GET_USERS, GET_USER,ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE, 
-  GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY } from './actions'
+  GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY, 
+  GET_DISKS, GET_DISK, ADD_DISK, EDIT_DISK, DELETE_DISK } from './actions'
 import { 
    AUTH_ERROR, AUTH_SUCCESS, 
    SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, 
    SET_USERS, SET_USER, SET_MODIFIED_USER,
-   SET_CATEGORIES, SET_CATEGORY, SET_MODIFIED_CATEGORY, } from './mutations'
+   SET_CATEGORIES, SET_CATEGORY, SET_MODIFIED_CATEGORY,
+   SET_DISKS, SET_DISK, SET_MODIFIED_DISK } from './mutations'
 
 Vue.use(Vuex)
 
@@ -21,12 +23,18 @@ export default new Vuex.Store({
   state : {
     user: null,
     status: null,
+
     organisations: [],
-    organisation: null,
+    selectedOrg: null,
+
     users: [],
     selectedUser : null,
+
     categories : [],
-    selectedCat: null
+    selectedCat: null,
+
+    disks: [],
+    selectedDisk: null
   },
   getters : {
     isAuth: state => { 
@@ -38,13 +46,13 @@ export default new Vuex.Store({
       state.user = JSON.parse(localStorage.getItem('user'))
       return state.user ? state.user.role :  ""
      },
-
     org: state => { 
       state.user = JSON.parse(localStorage.getItem('user'))
       return state.user ? state.user.org :  ""
     },
+
     orgs: state => state.organisations,
-    selectedOrg: state => state.organisation,
+    selectedOrg: state => state.selectedOrg,
 
     users: state => state.users,
     selectedUser: state => state.selectedUser,
@@ -66,6 +74,8 @@ export default new Vuex.Store({
     [AUTH_LOGOUT]: (state) => {
       state.user = null
     },
+
+
     [ADD_ORGANISATION] : (state, org) => {
       state.organisations = {...state.organisations, org}
     },
@@ -73,10 +83,11 @@ export default new Vuex.Store({
       state.organisations = orgs
     },
     [SET_ORGANISATION] : (state, org) => {
-      state.organisation = org
+      state.selectedOrg = org
     },
     [SET_MODIFIED_ORG] : (state, org) => {
       let newState = {}
+      console.log('u state', org)
       for (const orgName in Object.keys(state.organisations)) {
         if (orgName === org.Name) {
             newState[orgName] = org
@@ -85,6 +96,8 @@ export default new Vuex.Store({
     }
       state.organisations = newState;
     },
+
+
     [SET_USERS] : (state, users) => {
       state.users = users
     },
@@ -120,10 +133,31 @@ export default new Vuex.Store({
 
       state.categories = [...state.categories.slice(0, index), cat, ...state.categories.slice(index + 1, state.categories.length)]
     },
-    [DELETE_CATEGORY] : (state, email) => {
+    [DELETE_CATEGORY] : (state, name) => {
       const index = state.categories.findIndex(c => c.name == name)
       
       state.categories = [...state.categories.slice(0, index), ...state.categories.slice(index + 1, state.categories.length)]
+    },
+
+    
+    [SET_DISKS] : (state, disks) => {
+      state.disks = disks
+    },
+    [ADD_DISK] : (state, disk) => {
+      state.disks = [...state.disks, disk]
+    },
+    [SET_DISK] : (state, disk) => {
+      state.selectedDisk = {...disk}
+    },
+    [SET_MODIFIED_DISK] : (state, disk) => {
+      const index = state.disks.findIndex(d => d.name === disk.name)
+
+      state.disks = [...state.disks.slice(0, index), disk, ...state.disks.slice(index + 1, state.disks.length)]
+    },
+    [DELETE_DISK] : (state, name) => {
+      const index = state.disks.findIndex(d => d.name == name)
+      
+      state.disks = [...state.disks.slice(0, index), ...state.disks.slice(index + 1, state.disks.length)]
     }
   },
   actions: {
@@ -159,6 +193,8 @@ export default new Vuex.Store({
         })
       })
     },
+
+
     [GET_ORGANISATIONS]: ({commit, dispatch}) => {
       return new Promise((resolve, reject) => { 
         axios.get('/org')
@@ -190,7 +226,7 @@ export default new Vuex.Store({
       })
     },
     [EDIT_ORGANISATION]: ({commit, dispatch}, data) => {
-      const dataServer = { name: data.name, desc: data.description, logo_url: data.logo}
+      const dataServer = { name: data.name, desc: data.desc, logo_url: data.logo}
       return new Promise((resolve, reject) => { 
         axios(`/org/${data.oldName}`, {
           method: 'PUT',
@@ -220,6 +256,8 @@ export default new Vuex.Store({
         })
       })
     },
+
+
     [GET_USERS]: ({commit, dispatch}) => {
       return new Promise((resolve, reject) => { 
         axios.get('/user')
@@ -306,6 +344,7 @@ export default new Vuex.Store({
       })
     },
 
+
     [GET_CATEGORIES]: ({commit, dispatch}) => {
       return new Promise((resolve, reject) => { 
         axios.get('/category')
@@ -366,6 +405,75 @@ export default new Vuex.Store({
         })
         .then(res => {
           commit(DELETE_CATEGORY, id);
+          resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+
+
+    [GET_DISKS]: ({commit, dispatch}) => {
+      return new Promise((resolve, reject) => { 
+        axios.get('/disk')
+        .then(res => {
+          commit(SET_DISKS, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [ADD_DISK]: ({commit, dispatch}, data) => {
+      return new Promise((resolve, reject) => { 
+        axios.post('/disk', JSON.stringify(data))
+        .then(res => {
+          commit(ADD_DISK, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [GET_DISK]: ({commit, dispatch}, { name } ) => {
+      return new Promise((resolve, reject) => { 
+        axios.get(`/disk/${name}`)
+        .then(res => {
+          commit(SET_DISK, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [EDIT_DISK]: ({commit, dispatch}, data) => {
+ 
+      return new Promise((resolve, reject) => { 
+        axios(`/disk/${data.name}`, {
+          method: 'PUT',
+          data: JSON.stringify(data)
+        })
+        .then(res => {
+          commit(SET_MODIFIED_CATEGORY, res.data);
+          resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [DELETE_DISK]: ({commit, dispatch}, id) => {
+ 
+      return new Promise((resolve, reject) => { 
+        axios(`/category/${id}`, {
+          method: 'DELETE'
+        })
+        .then(res => {
+          commit(DELETE_DISK, id);
           resolve()
         })
         .catch(err => {

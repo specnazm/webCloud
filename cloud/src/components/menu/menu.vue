@@ -21,7 +21,7 @@
             @click.native="toggleSideBar">
             Categories
             </router-link></li>
-    <li><router-link to="/drives" @click.native="toggleSideBar">Drives</router-link></li>
+    <li><router-link to="/disks" @click.native="toggleSideBar">Disks</router-link></li>
     <li><router-link to="/me" @click.native="toggleSideBar">Account settings</router-link></li>
     </ul>
 </div>
