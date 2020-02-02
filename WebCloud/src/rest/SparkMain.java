@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ public class SparkMain {
 	public static void main(String[] args) throws JsonIOException, IOException {
 		port(8079);	
 		Cache.load();
-		System.out.println(LocalDate.now());
+		
 		options("/*",
 		        (request, response) -> {
 		            String accessControlRequestHeaders = request
@@ -1275,23 +1276,45 @@ public class SparkMain {
 			
 		});
 		
-		get("/api/vm/search" , (req, res) -> {
+		get("/api/search" , (req, res) -> {
 			Session ss = req.session(true);
 			User u = ss.attribute("user");
 			res.type("application/json");
+			
+			
 			
 			if(u == null) {
 				res.status(400);
 				msg.addProperty("msg", "No user logged in.");
 				return g.toJson(msg);
 			}
+			String searched_name = (req.queryParams().contains("name")) ? req.queryParams("name") : "";
 			
-			Set<String> vms;
-			if(u.getRole() != Roles.SUPER_ADMIN)
-				vms = Cache.getOrgs().get(u.getOrg()).getRsrc().keySet();
-			else
-				vms = Cache.getVms().keySet();
-			
+			Set<String> vms = Collections.<String>emptySet();;
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				if(searched_name.equals(""))
+					vms = Cache.getOrgs().get(u.getOrg()).getRsrc().keySet();
+				else
+				{
+					if (Cache.getVms().containsKey(searched_name) & Cache.getVms().get(searched_name).getOrg().equals(u.getOrg()))
+						vms.add(searched_name);
+					else
+						return vms;
+				}	
+					
+			}
+			else {
+				if(searched_name.equals(""))
+					vms = Cache.getVms().keySet();
+				else
+				{
+					if (Cache.getVms().containsKey(searched_name))
+						vms.add(searched_name);
+					else
+						return vms;
+				}
+			}
+									
 			Integer cpuHigh  = (req.queryParams().contains("cpuHigh")) ? Integer.parseInt(req.queryParams("cpuHigh")) :  99999;
 			Integer cpuLow  = (req.queryParams().contains("cpuLow")) ? Integer.parseInt(req.queryParams("cpuLow")) :  0;
 			Integer gpuHigh  = (req.queryParams().contains("gpuHigh")) ? Integer.parseInt(req.queryParams("gpuHigh")) :  99999;
