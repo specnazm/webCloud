@@ -5,9 +5,10 @@ public class Disc {
 	private DiscType type;
 	private Integer capacity;
 	private String vm;
+	private String org;
 	
 	public boolean checkRequired() {
-		if (this.name == null || this.type== null || this.capacity == null || this.vm == null )
+		if (this.name == null || this.type== null || this.capacity == null || this.org == null )
 			return false;
 		return true;
 	}
@@ -49,12 +50,21 @@ public class Disc {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Disc(String name, DiscType type, Integer capacity, String vm) {
+	public Disc(String name, DiscType type, Integer capacity, String vm, String org) {
 		super();
 		this.name = name;
 		this.type = type;
 		this.capacity = capacity;
 		this.vm = vm;
+		this.org = org;
+	}
+
+	public String getOrg() {
+		return org;
+	}
+
+	public void setOrg(String org) {
+		this.org = org;
 	}
 	
 	

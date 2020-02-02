@@ -732,13 +732,13 @@ public class SparkMain {
 			
 		}); 
 		
-//DISCS----------------------------------------------------------------------------------------------------------------------------------
+//DISC----------------------------------------------------------------------------------------------------------------------------------
 	
 		get("/api/disc" , (req, res) -> {
 			Session ss = req.session(true);
 			User u = ss.attribute("user");
 			res.type("application/json");
-			HashMap<String, Disc> discs = new HashMap<String,Disc>();
+			ArrayList<Disc> discs = new ArrayList<Disc>();
 			
 			if(u == null) {
 				res.status(400);
@@ -748,12 +748,13 @@ public class SparkMain {
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				String org_name = u.getOrg();
-				for (VM vm : Cache.getOrgs().get(org_name).getRsrc().values())
+				for (Disc d : Cache.getDiscs().values())
 				{
-					discs.putAll(vm.getDiscs());
+					if(d.getOrg().equals(org_name))
+						discs.add(d);
 				}
 				res.status(200);
-				return g.toJson(discs.values());
+				return g.toJson(discs);
 			}else
 			{
 				res.status(200);
@@ -761,7 +762,104 @@ public class SparkMain {
 			}
 			
 		});
+		
+		post("/api/disc" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to add users.");
+				return g.toJson(msg);
+			}
+			else
+			{
+				String payload = req.body();
+				Disc disc = g.fromJson(payload, Disc.class);
+				
+				if (u.getRole() == Roles.ADMIN)
+					disc.setOrg(u.getOrg());
+				
+				if(disc.checkRequired()) {
+					if(Cache.getDiscs().containsKey(disc.getName())) {
+						res.status(400);
+						msg.addProperty("msg", "Disc with such name already exists.");
+						return g.toJson(msg);
+					}else {
+						res.status(200);
+						if (!(disc.getVm() == null))
+							Cache.putDisc(disc.getName(), disc);
+						else
+							Cache.getDiscs().put(disc.getName(), disc);
+						Cache.save();
+						return g.toJson(disc);
+					}					
+				}else {
+					res.status(400);
+					msg.addProperty("msg", "Fields missing.");
+					return g.toJson(msg);
+				}
+			}
+		});
 	
+//VM----------------------------------------------------------------------------------------------------------------------------------	
+		get("/api/vm" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			ArrayList<VM> vms = new ArrayList<VM>();
+			
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				String org_name = u.getOrg();
+				if (req.queryParams().contains("org") && !org_name.equals(req.queryParams("org"))) {
+					res.status(403);
+					msg.addProperty("msg", "User lacks permission to view VMs of other organisations.");
+					return g.toJson(msg);
+				}
+				
+				for (VM vm : Cache.getVms().values())
+				{
+					if(vm.getOrg().equals(org_name))
+						vms.add(vm);
+				}
+				res.status(200);
+				return g.toJson(vms);
+			}else
+			{
+				if(req.queryParams().contains("org")) {
+					String org_name = req.queryParams("org");
+					for (VM vm : Cache.getVms().values())
+					{
+						if(vm.getOrg().equals(org_name))
+							vms.add(vm);
+					}
+					res.status();
+					return g.toJson(vms);
+				}
+				else
+				{
+					res.status(200);
+					return g.toJson(Cache.getDiscs().values());
+				}
+				
+			}
+			
+		});
+		
 	}
 
 }

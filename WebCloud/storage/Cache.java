@@ -147,6 +147,11 @@ public class Cache {
 	public static void setGson(Gson gson) {
 		Cache.gson = gson;
 	}
+
+	public static void putDisc(String name, Disc disc) {
+		Cache.getVms().get(disc.getVm()).getDiscs().put(name, disc);
+		Cache.getDiscs().put(name, disc);		
+	}
 	
 	
 }
