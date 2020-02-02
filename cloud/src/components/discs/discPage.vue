@@ -36,7 +36,7 @@
                         v-if="role === 'SUPER_ADMIN'"
                         type="button" 
                         class="btn btn-outline-danger" 
-                        @click="deleteDisc">Delete disc</button>
+                        @click="deleteDisc" >Delete disc</button>
                 </div>
                 <div class="col-md-8">
                     <div class="tab-content profile-tab" id="myTabContent">
@@ -120,18 +120,18 @@ export default {
         setData(disc) {
             this.name = disc.name
             this.capacity = disc.capacity
-            this.vm = disc.vm.name
+            this.vm = disc.vm
             this.type = disc.type
-            this.org = disc.org.name
+            this.org = disc.org
         },
         closeModal() {
             this.showModal = false;
         },
-        deletedisc() {
+        deleteDisc() {
             this.$store.dispatch(DELETE_DISC, this.selectedDisc.name)
             .then( res => { this.closeModal() 
                     this.$router.push('/discs') })
-            .discch(error => alert(error.response.data.msg))
+            .catch(error => alert(error.response.data.msg))
         },
         getIcon() {
            return `../../../img/${this.type}.jpg`
@@ -146,7 +146,7 @@ export default {
         else {
              this.$store.dispatch(GET_DISC, data)
                     .then( res => this.setData(res.data))
-                    .discch(error => {
+                    .catch(error => {
                         this.$router.push('/dashboard')
                         alert(error.response.data.msg)
                     })

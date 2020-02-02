@@ -9,10 +9,7 @@ import {
   GET_USERS, GET_USER,ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE, 
   GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY, 
   GET_DISCS, GET_DISC, ADD_DISC, EDIT_DISC, DELETE_DISC,
-  GET_VMS, 
-  ADD_VM,
-  EDIT_VM,
-  DELETE_VM} from './actions'
+  GET_VMS, GET_VM, ADD_VM,EDIT_VM, DELETE_VM} from './actions'
 import { 
    AUTH_ERROR, AUTH_SUCCESS, 
    SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, 
@@ -175,6 +172,22 @@ export default new Vuex.Store({
 
     [SET_VMS] : (state, vms) => {
       state.vms = vms
+    },
+    [ADD_VM] : (state, vm) => {
+      state.vms = [...state.vms, vm]
+    },
+    [SET_VM] : (state, vm) => {
+      state.selectedVM = vm
+    },
+    [SET_MODIFIED_VM] : (state, vm) => {
+      const index = state.vms.findIndex(d => d.name === vm.name)
+
+      state.vms = [...state.vms.slice(0, index), vm, ...state.discs.slice(index + 1, state.vms.length)]
+    },
+    [DELETE_VM] : (state, name) => {
+      const index = state.vms.findIndex(d => d.name == name)
+      
+      state.vms = [...state.vms.slice(0, index), ...state.vms.slice(index + 1, state.vms.length)]
     },
 
   },
@@ -400,11 +413,11 @@ export default new Vuex.Store({
       })
     },
     [EDIT_CATEGORY]: ({commit, dispatch}, data) => {
- 
+      const dataServer = { name: data.name, cpuCores: data.cpuCores, ram: data.ram, gpuCores: data.gpuCores}
       return new Promise((resolve, reject) => { 
         axios(`/category/${data.oldName}`, {
           method: 'PUT',
-          data: JSON.stringify(data)
+          data: JSON.stringify(dataServer)
         })
         .then(res => {
           commit(SET_MODIFIED_CATEGORY, res.data);
@@ -469,11 +482,12 @@ export default new Vuex.Store({
       })
     },
     [EDIT_DISC]: ({commit, dispatch}, data) => {
- 
+      
+      const dataServer = { name: data.name, org: data.org, type: data.type, capacity: data.capacity, vm: data.vm}
       return new Promise((resolve, reject) => { 
         axios(`/disc/${data.oldName}`, {
           method: 'PUT',
-          data: JSON.stringify(data)
+          data: JSON.stringify(dataServer)
         })
         .then(res => {
           commit(SET_MODIFIED_DISC, res.data);
@@ -487,7 +501,7 @@ export default new Vuex.Store({
     [DELETE_DISC]: ({commit, dispatch}, id) => {
  
       return new Promise((resolve, reject) => { 
-        axios(`/category/${id}`, {
+        axios(`/disc/${id}`, {
           method: 'DELETE'
         })
         .then(res => {
@@ -502,9 +516,12 @@ export default new Vuex.Store({
 
 
     [GET_VMS]: ({commit, dispatch}, { org }) => {
-    
+      let url = '/vm'
+      console.log(typeof(org))
+      if(org)
+        url += `?org=${org}`
       return new Promise((resolve, reject) => { 
-        axios.get(`/vm?org=${org}`)
+        axios.get(url)
         .then(res => {
           commit(SET_VMS, res.data);
           resolve(res)
@@ -515,6 +532,7 @@ export default new Vuex.Store({
       })
     },
     [ADD_VM]: ({commit, dispatch}, data) => {
+
       return new Promise((resolve, reject) => { 
         axios.post('/vm', JSON.stringify(data))
         .then(res => {
@@ -540,10 +558,13 @@ export default new Vuex.Store({
     },
     [EDIT_VM]: ({commit, dispatch}, data) => {
  
+      const dataServer = { name: data.name, org: data.org, category: data.category, cpuCores: data.cpuCores, gpuCores: data.gpuCores,
+                ram : data.ram,  discs : data.discs, log: data.log, active: data.active }
+      
       return new Promise((resolve, reject) => { 
         axios(`/vm/${data.oldName}`, {
           method: 'PUT',
-          data: JSON.stringify(data)
+          data: JSON.stringify(dataServer)
         })
         .then(res => {
           commit(SET_MODIFIED_VM, res.data);

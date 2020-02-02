@@ -1,5 +1,5 @@
 <template>   
-<div id="discForm" v-if="showModal">
+<div id="vmForm" v-if="showModal">
     <transition name="modal">
       <div class="modal-mask">
         <div class="modal-wrapper">
@@ -87,7 +87,7 @@ import store from '../../store'
 import { mapState } from 'vuex'
 
 export default {
-  name: 'discForm',
+  name: 'vmForm',
   props: ['showModal', 'disc'],
   data () {
     return {
@@ -104,79 +104,79 @@ export default {
     }
   },
   mounted() {
-    if(this.disc) {
-      this.setData()
-      this.getVMS({ org: this.disc.org })
-    } else {
-     if (store.getters.role === 'ADMIN') {
-       this.org = store.getters.org
-       this.selOrg = this.org
-       this.disable = true
-       this.getVMS({ org: this.org })
-    }
-    else if (store.getters.role === 'SUPER_ADMIN') {
-      this.$store.dispatch(GET_ORGANISATIONS)
-            .then( res => console.log(res))
-            .catch(error => alert(error.response.data.msg))
-      }
-    }
+    // if(this.disc) {
+    //   this.setData()
+    //   this.getVMS({ org: this.disc.org })
+    // } else {
+    //  if (store.getters.role === 'ADMIN') {
+    //    this.org = store.getters.org
+    //    this.selOrg = this.org
+    //    this.disable = true
+    //    this.getVMS({ org: this.org })
+    // }
+    // else if (store.getters.role === 'SUPER_ADMIN') {
+    //   this.$store.dispatch(GET_ORGANISATIONS)
+    //         .then( res => console.log(res))
+    //         .catch(error => alert(error.response.data.msg))
+    //   }
+    // }
     
-  },
- computed:  mapState({
-    organisations: state => state.organisations,
-    vms : state => state.vms
-  }),
-  methods: {
-    close() {
-      this.$emit('closeModal')
-      if (!this.disc)
-        this.resetData()
-    },
-    setData() {
-      this.name = this.disc.name
-      this.capacity = this.disc.capacity
-      this.vm = this.disc.vm
-      this.org = this.disc.org,
-      this.type = this.disc.type,
-      this.title = "Edit disc"
-      this.btnTitle = "Save changes"
-    },
-    resetData() {
-      this.name = ''
-      this.capacity = ''
-      this.type = ''
-      this.vm = ''
-    },
-    storeData() {
-      const data = { 
-                name: this.name, 
-                capacity: this.capacity,
-                type: this.type,
-                org: this.org,
-                vm: this.vm
-                }
-       let action = ADD_DISC
-       if (this.disc) {
-          action = EDIT_DISC
-          data.oldName = this.disc.name
-        }
-      this.$store.dispatch(action, data)
-      .then( res => {
-          if (action === EDIT_DISC)
-            this.$router.push('/discs')
-          this.close()
-      })
-      .catch(error => alert(error.response.data.msg)) 
-  },
-    onChange(event) {
-      const data = { org: event.target.value }
-      this.getVMS(data)
-    },
-    getVMS(data) {
-      this.$store.dispatch(GET_VMS, data)
-        .then( res => console.log(res))
-        .catch(error => alert(error.response.data.msg))
-    }
+//  },
+//  computed:  mapState({
+//     organisations: state => state.organisations,
+//     vms : state => state.vms
+//   }),
+//   methods: {
+//     close() {
+//       this.$emit('closeModal')
+//       if (!this.disc)
+//         this.resetData()
+//     },
+//     setData() {
+//       this.name = this.disc.name
+//       this.capacity = this.disc.capacity
+//       this.vm = this.disc.vm
+//       this.org = this.disc.org,
+//       this.type = this.disc.type,
+//       this.title = "Edit disc"
+//       this.btnTitle = "Save changes"
+//     },
+//     resetData() {
+//       this.name = ''
+//       this.capacity = ''
+//       this.type = ''
+//       this.vm = ''
+//     },
+//     storeData() {
+//       const data = { 
+//                 name: this.name, 
+//                 capacity: this.capacity,
+//                 type: this.type,
+//                 org: this.org,
+//                 vm: this.vm
+//                 }
+//        let action = ADD_DISC
+//        if (this.disc) {
+//           action = EDIT_DISC
+//           data.oldName = this.disc.name
+//         }
+//       this.$store.dispatch(action, data)
+//       .then( res => {
+//           if (action === EDIT_DISC)
+//             this.$router.push('/discs')
+//           this.close()
+//       })
+//       .catch(error => alert(error.response.data.msg)) 
+//   },
+//     onChange(event) {
+//       const data = { org: event.target.value }
+//       this.getVMS(data)
+//     },
+//     getVMS(data) {
+//       this.$store.dispatch(GET_VMS, data)
+//         .then( res => console.log(res))
+//         .catch(error => alert(error.response.data.msg))
+//     }
 }
 }
 </script>

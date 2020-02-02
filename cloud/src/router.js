@@ -15,6 +15,8 @@ import CategoryPage from './components/categories/CategoryPage'
 import DiscList from './components/discs/discList'
 import DiscPage from './components/discs/discPage'
 
+import VMList from './components/dashboard/dashboard'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -40,6 +42,9 @@ const routes = [
 
   { path: '/discs', component: DiscList },
   { path: '/disc/:name', component: DiscPage },
+
+  { path: '/vms', component: VMList },
+  { path: '/vm/:name', component: DiscPage },
 
 ]
 

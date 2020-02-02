@@ -22,14 +22,13 @@
 
 <script>
 import store from '../../store'
+import { mapState } from 'vuex'
 
 export default {
  name: "userInfo",
- computed : {
-     user() {
-         return store.getters.loggedUser
-     }
- }
+  computed: mapState({
+    user: state => state.user
+   })
 }
 </script>
 
