@@ -16,11 +16,6 @@
             isOpen : {
                 type : Boolean
             }
-        },
-        methods: {
-            toggleSideBar() {
-                this.$emit('toggle')
-            }
         }
     }
 </script>

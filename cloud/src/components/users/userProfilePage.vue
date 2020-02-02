@@ -120,5 +120,5 @@ export default {
 </script>
 
 <style scoped>
-    @import '../../css/userPage.css';
+    @import '../../css/page.css';
 </style>

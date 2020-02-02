@@ -113,15 +113,17 @@ export default {
             this.$store.dispatch(DELETE_CATEGORY, this.selectedCat.name)
             .then( res => { this.closeModal() 
                     this.$router.push('/categories') })
-            .catch(error => alert(error.response.data.msg))
+            .catch(error => {
+                alert(error.response.data.msg)
+                this.$router.push('/users')})
         }
     },
     mounted() {
         this.routeName =  this.$route.params.name
         const data = { name: this.routeName }
-        if (this.selectedCat)
-            if(this.selectedCat.name === data.name)
+        if (this.selectedCat && this.selectedCat.name === data.name) {
                 this.setData(this.selectedCat)
+        }
         else {
              this.$store.dispatch(GET_CATEGORY, data)
                     .then( res => this.setData(res.data))
@@ -139,5 +141,5 @@ export default {
 </script>
 
 <style scoped>
-    @import '../../css/userPage.css';
+    @import '../../css/page.css';
 </style>

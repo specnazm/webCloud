@@ -8,13 +8,15 @@ import {
   GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION, 
   GET_USERS, GET_USER,ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE, 
   GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY, 
-  GET_DISKS, GET_DISK, ADD_DISK, EDIT_DISK, DELETE_DISK } from './actions'
+  GET_DISCS, GET_DISC, ADD_DISC, EDIT_DISC, DELETE_DISC,
+  GET_VMS } from './actions'
 import { 
    AUTH_ERROR, AUTH_SUCCESS, 
    SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, 
    SET_USERS, SET_USER, SET_MODIFIED_USER,
    SET_CATEGORIES, SET_CATEGORY, SET_MODIFIED_CATEGORY,
-   SET_DISKS, SET_DISK, SET_MODIFIED_DISK } from './mutations'
+   SET_DISCS, SET_DISC, SET_MODIFIED_DISC,
+    SET_VMS  } from './mutations'
 
 Vue.use(Vuex)
 
@@ -33,8 +35,11 @@ export default new Vuex.Store({
     categories : [],
     selectedCat: null,
 
-    disks: [],
-    selectedDisk: null
+    discs: [],
+    selectedDisc: null,
+
+    vms: [],
+    selectedVM: null
   },
   getters : {
     isAuth: state => { 
@@ -57,7 +62,11 @@ export default new Vuex.Store({
     users: state => state.users,
     selectedUser: state => state.selectedUser,
 
-    categories: state => state.categories
+    categories: state => state.categories,
+
+    discs: state => state.discs,
+
+    vms: state => state.vms
 
   },
   mutations: {
@@ -105,7 +114,7 @@ export default new Vuex.Store({
       state.users = [...state.users, user]
     },
     [SET_USER] : (state, user) => {
-      state.selectedUser = {...user}
+      state.selectedUser = user
     },
     [SET_MODIFIED_USER] : (state, user) => {
       const index = state.users.findIndex(us => us.email === user.email)
@@ -126,7 +135,7 @@ export default new Vuex.Store({
       state.categories = [...state.categories, cat]
     },
     [SET_CATEGORY] : (state, cat) => {
-      state.selectedCat = {...cat}
+      state.selectedCat = cat
     },
     [SET_MODIFIED_CATEGORY] : (state, cat) => {
       const index = state.categories.findIndex(c => c.name === cat.name)
@@ -140,25 +149,30 @@ export default new Vuex.Store({
     },
 
     
-    [SET_DISKS] : (state, disks) => {
-      state.disks = disks
+    [SET_DISCS] : (state, discs) => {
+      state.discs = discs
     },
-    [ADD_DISK] : (state, disk) => {
-      state.disks = [...state.disks, disk]
+    [ADD_DISC] : (state, disc) => {
+      state.discs = [...state.discs, disc]
     },
-    [SET_DISK] : (state, disk) => {
-      state.selectedDisk = {...disk}
+    [SET_DISC] : (state, disc) => {
+      state.selectedDisc = disc
     },
-    [SET_MODIFIED_DISK] : (state, disk) => {
-      const index = state.disks.findIndex(d => d.name === disk.name)
+    [SET_MODIFIED_DISC] : (state, disc) => {
+      const index = state.discs.findIndex(d => d.name === disc.name)
 
-      state.disks = [...state.disks.slice(0, index), disk, ...state.disks.slice(index + 1, state.disks.length)]
+      state.discs = [...state.discs.slice(0, index), disc, ...state.discs.slice(index + 1, state.discs.length)]
     },
-    [DELETE_DISK] : (state, name) => {
-      const index = state.disks.findIndex(d => d.name == name)
+    [DELETE_DISC] : (state, name) => {
+      const index = state.discs.findIndex(d => d.name == name)
       
-      state.disks = [...state.disks.slice(0, index), ...state.disks.slice(index + 1, state.disks.length)]
-    }
+      state.discs = [...state.discs.slice(0, index), ...state.discs.slice(index + 1, state.discs.length)]
+    },
+
+    [SET_VMS] : (state, vms) => {
+      state.vms = vms
+    },
+
   },
   actions: {
     [AUTH_REQUEST]: ({commit, dispatch}, data) => {
@@ -414,11 +428,11 @@ export default new Vuex.Store({
     },
 
 
-    [GET_DISKS]: ({commit, dispatch}) => {
+    [GET_DISCS]: ({commit, dispatch}) => {
       return new Promise((resolve, reject) => { 
-        axios.get('/disk')
+        axios.get('/disc')
         .then(res => {
-          commit(SET_DISKS, res.data);
+          commit(SET_discS, res.data);
           resolve(res)
         })
         .catch(err => {
@@ -426,11 +440,11 @@ export default new Vuex.Store({
         })
       })
     },
-    [ADD_DISK]: ({commit, dispatch}, data) => {
+    [ADD_DISC]: ({commit, dispatch}, data) => {
       return new Promise((resolve, reject) => { 
-        axios.post('/disk', JSON.stringify(data))
+        axios.post('/disc', JSON.stringify(data))
         .then(res => {
-          commit(ADD_DISK, res.data);
+          commit(ADD_disc, res.data);
           resolve(res)
         })
         .catch(err => {
@@ -438,11 +452,11 @@ export default new Vuex.Store({
         })
       })
     },
-    [GET_DISK]: ({commit, dispatch}, { name } ) => {
+    [GET_DISC]: ({commit, dispatch}, { name } ) => {
       return new Promise((resolve, reject) => { 
-        axios.get(`/disk/${name}`)
+        axios.get(`/disc/${name}`)
         .then(res => {
-          commit(SET_DISK, res.data);
+          commit(SET_disc, res.data);
           resolve(res)
         })
         .catch(err => {
@@ -450,10 +464,10 @@ export default new Vuex.Store({
         })
       })
     },
-    [EDIT_DISK]: ({commit, dispatch}, data) => {
+    [EDIT_DISC]: ({commit, dispatch}, data) => {
  
       return new Promise((resolve, reject) => { 
-        axios(`/disk/${data.name}`, {
+        axios(`/disc/${data.name}`, {
           method: 'PUT',
           data: JSON.stringify(data)
         })
@@ -466,15 +480,28 @@ export default new Vuex.Store({
         })
       })
     },
-    [DELETE_DISK]: ({commit, dispatch}, id) => {
+    [DELETE_DISC]: ({commit, dispatch}, id) => {
  
       return new Promise((resolve, reject) => { 
         axios(`/category/${id}`, {
           method: 'DELETE'
         })
         .then(res => {
-          commit(DELETE_DISK, id);
+          commit(DELETE_disc, id);
           resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+
+    [GET_VMS]: ({commit, dispatch}, { org }) => {
+     
+      return new Promise((resolve, reject) => { 
+        axios.get(`/vm?org=${org}`)
+        .then(res => {
+          resolve(res)
         })
         .catch(err => {
           reject(err)

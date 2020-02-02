@@ -43,7 +43,7 @@ li a {
 }
 
 li a:hover,
-li #logout:hover,
+li .logout:hover,
 .logo a:hover,
 li a:active,
 li a.router-link-active {

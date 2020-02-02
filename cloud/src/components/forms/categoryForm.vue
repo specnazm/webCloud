@@ -66,6 +66,7 @@
 <script>
 import { ADD_CATEGORY, EDIT_CATEGORY } from '../../actions'
 import store from '../../store'
+import { mapState } from 'vuex'
 
 export default {
   name: 'categoryForm',
@@ -85,16 +86,9 @@ export default {
       this.setData()
     }
   },
-  computed: {
-    categories() {
-        return store.getters.categories
-    }
-  },
-   watch: {
-      category() {
-        this.setData()
-      }
-   },
+  computed:  mapState({
+    categories: state => state.categories
+  }),
   methods: {
     close() {
       this.$emit('closeModal')
@@ -130,11 +124,7 @@ export default {
           this.close()
       })
       .catch(error => alert(error.response.data.msg)) 
-  },
-
-  validateData() {
-
-  }
+    }
 }
 }
 </script>

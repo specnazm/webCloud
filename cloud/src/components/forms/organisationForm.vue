@@ -53,6 +53,8 @@
 
 <script>
 import { ADD_ORGANISATION, EDIT_ORGANISATION } from '../../actions'
+import store from '../../store'
+import { mapState } from 'vuex'
 
 export default {
     props: ['showModal', 'org'],
@@ -68,11 +70,6 @@ export default {
     },
     mounted() {
       if(this.org) {
-        this.setData()
-      }
-    },
-    watch: {
-      org() {
         this.setData()
       }
     },
@@ -112,7 +109,6 @@ export default {
                     desc: this.desc, 
                     logo: this.logo
                     }
-        console.log('u org form', data)
         let action = ADD_ORGANISATION
         if (this.org) {
           action = EDIT_ORGANISATION

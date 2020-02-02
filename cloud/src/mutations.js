@@ -14,6 +14,8 @@ export const SET_CATEGORIES = 'SET_CATEGORIES'
 export const SET_CATEGORY = 'SET_CATEGORY'
 export const SET_MODIFIED_CATEGORY = 'SET_MODIFIED_CATEGORY'
 
-export const SET_DISKS = 'SET_DISKS'
-export const SET_DISK = 'SET_DISK'
-export const SET_MODIFIED_DISK = 'SET_MODIFIED_DISK'
+export const SET_DISCS = 'SET_DISCS'
+export const SET_DISC = 'SET_DISC'
+export const SET_MODIFIED_DISC = 'SET_MODIFIED_DISC'
+
+export const SET_VMS = 'SET_VMS'

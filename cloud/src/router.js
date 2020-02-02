@@ -12,6 +12,8 @@ import UserPage from './components/users/userPage'
 import UserProfilePage from './components/users/userProfilePage'
 import CategoryList from './components/categories/CategoryList'
 import CategoryPage from './components/categories/CategoryPage'
+import DiscList from './components/discs/discList'
+import DiscPage from './components/discs/discPage'
 
 Vue.use(VueRouter)
 
@@ -25,13 +27,19 @@ const routes = [
     } 
   },
   { path: '/dashboard', component: DashboardPage },
+
   { path: '/organisations', component: OrganisationList },
   { path: '/organisation/:name', component: OrganisationPage },
+
   { path: '/users', component: UserList },
   { path: '/user/:email', component: UserPage },
   { path: '/me', component: UserProfilePage },
+
   { path: '/categories', component: CategoryList },
   { path: '/category/:name', component: CategoryPage },
+
+  { path: '/discs', component: DiscList },
+  { path: '/disc/:name', component: DiscPage },
 
 ]
 

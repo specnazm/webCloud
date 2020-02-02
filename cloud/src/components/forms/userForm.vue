@@ -86,6 +86,7 @@
 <script>
 import { GET_ORGANISATIONS, ADD_USER, EDIT_USER } from '../../actions'
 import store from '../../store'
+import { mapState } from 'vuex'
 
 export default {
   name: 'userForm',
@@ -108,6 +109,7 @@ export default {
     if(this.user) {
       this.setData()
     }
+    else {
     if (store.getters.role === 'ADMIN') {
       this.organisation = store.getters.org
       this.selected = this.organisation
@@ -118,17 +120,12 @@ export default {
                 .then( res => console.log(res))
                 .catch(error => alert(error.response.data.msg))
       }
-  },
-  computed: {
-    organisations() {
-        return store.getters.orgs
     }
   },
-   watch: {
-      user() {
-        this.setData()
-      }
-   },
+  computed:  mapState({
+    organisations: state => state.organisations
+  })
+   ,
   methods: {
     close() {
       this.$emit('closeModal')
@@ -151,6 +148,8 @@ export default {
       this.surname = ''
       this.password = ''
       this.role = ''
+      this.title = "New user",
+      this.btnTitle = "Add user"
     },
     storeData() {
       const data = { 
