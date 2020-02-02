@@ -9,7 +9,7 @@ import {
   GET_USERS, GET_USER,ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE, 
   GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY, 
   GET_DISCS, GET_DISC, ADD_DISC, EDIT_DISC, DELETE_DISC,
-  GET_VMS, GET_VM, ADD_VM,EDIT_VM, DELETE_VM} from './actions'
+  GET_VMS, GET_VM, ADD_VM,EDIT_VM, DELETE_VM, SEARCH_VM} from './actions'
 import { 
    AUTH_ERROR, AUTH_SUCCESS, 
    SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, 
@@ -445,9 +445,12 @@ export default new Vuex.Store({
     },
 
 
-    [GET_DISCS]: ({commit, dispatch}) => {
+    [GET_DISCS]: ({commit, dispatch},data) => {
+      let url = '/disc'
+      if(data) 
+        url += `?org=${data.org}`
       return new Promise((resolve, reject) => { 
-        axios.get('/disc')
+        axios.get(url)
         .then(res => {
           commit(SET_DISCS, res.data);
           resolve(res)
@@ -583,6 +586,26 @@ export default new Vuex.Store({
         })
         .then(res => {
           commit(DELETE_VM, id);
+          resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+
+    [SEARCH_VM]: ({commit, dispatch}, data) => {
+      let query = ''
+      const keys = Object.keys(data)
+      for (const key of keys) {
+        if (data[key])
+          query +=`${key}=${data[key]}&`
+      }
+      query = query.slice(0, -1)
+      return new Promise((resolve, reject) => { 
+        axios.get(`/vm/search?${query}`)
+        .then(res => {
+          commit(SET_VMS, res.data);
           resolve()
         })
         .catch(err => {
