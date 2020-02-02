@@ -729,7 +729,7 @@ public class SparkMain {
 				String payload = req.body();
 				VMCategory cat = g.fromJson(payload, VMCategory.class);
 				
-				if(Cache.getCategories().containsKey(cat.getName())) {
+				if(Cache.getCategories().containsKey(cat.getName()) && !(cat_name.equals(cat.getName()))) {
 					res.status(400);
 					msg.addProperty("msg", "Can't change category name, such category already exists.");
 					return g.toJson(msg);
@@ -1165,7 +1165,45 @@ public class SparkMain {
 			
 		});
 		
-		
+		post("/api/vm/toggle/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String vm_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to change activity of VM.");
+				return g.toJson(msg);
+			}else
+			{
+				if(!Cache.getVms().containsKey(vm_name)) 
+				{
+					res.status(400);
+					msg.addProperty("msg", "No such VM exists.");
+					return g.toJson(msg);
+				}
+				
+				if(u.getRole()==Roles.ADMIN && !(u.getOrg().equals(Cache.getVms().get(vm_name).getOrg())))
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin can't change activity of VM in other organisation.");
+					return msg;
+				}
+				
+				res.status(200);
+				Cache.getVms().get(vm_name).toggleActive();
+				Cache.save();
+				return g.toJson(Cache.getVms().get(vm_name));
+			}
+			
+		}); 
 		
 	}
 
