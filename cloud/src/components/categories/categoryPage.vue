@@ -111,7 +111,8 @@ export default {
         },
         deleteCat() {
             this.$store.dispatch(DELETE_CATEGORY, this.selectedCat.name)
-            .then( res => this.closeModal)
+            .then( res => { this.closeModal() 
+                    this.$router.push('/categories') })
             .catch(error => alert(error.response.data.msg))
         }
     },
@@ -125,7 +126,7 @@ export default {
              this.$store.dispatch(GET_CATEGORY, data)
                     .then( res => this.setData(res.data))
                     .catch(error => {
-                        this.$router.push('/dashboard');
+                        this.$router.push('/dashboard')
                         alert(error.response.data.msg)
                     })
         }
