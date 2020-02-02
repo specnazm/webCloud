@@ -11,11 +11,11 @@ import static spark.Spark.put;
 import static spark.Spark.delete;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.graalvm.compiler.phases.common.RemoveValueProxyPhase;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -36,11 +36,9 @@ public class SparkMain {
 		private static JsonObject msg = new JsonObject();
 		
 	public static void main(String[] args) throws JsonIOException, IOException {
-		port(8079);		
-		
-		
+		port(8079);	
 		Cache.load();
-		
+		System.out.println(LocalDate.now());
 		options("/*",
 		        (request, response) -> {
 		            String accessControlRequestHeaders = request
@@ -577,7 +575,7 @@ public class SparkMain {
 				return g.toJson(msg);
 			}
 			
-			if(u.getRole() != Roles.SUPER_ADMIN) {
+			if(u.getRole() == Roles.USER) {
 				res.status(403);
 				msg.addProperty("msg", "User lacks permission.");
 				return g.toJson(msg);
@@ -765,17 +763,38 @@ public class SparkMain {
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				String org_name = u.getOrg();
+				
+				if (req.queryParams().contains("org") && !org_name.equals(req.queryParams("org"))) {
+					res.status(403);
+					msg.addProperty("msg", "User lacks permission to view discs of other organisations.");
+					return g.toJson(msg);
+				}
+				
 				for (Disc d : Cache.getDiscs().values())
 				{
 					if(d.getOrg().equals(org_name))
 						discs.add(d);
 				}
+				
 				res.status(200);
 				return g.toJson(discs);
 			}else
 			{
-				res.status(200);
-				return g.toJson(Cache.getDiscs().values());
+				if(req.queryParams().contains("org")) {
+					String org_name = req.queryParams("org");
+					for (Disc disc : Cache.getDiscs().values())
+					{
+						if(disc.getOrg().equals(org_name))
+							discs.add(disc);
+					}
+					res.status();
+					return g.toJson(discs);
+				}
+				else
+				{
+					res.status(200);
+					return g.toJson(Cache.getDiscs().values());
+				}
 			}
 			
 		});

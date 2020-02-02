@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.time.LocalDate;
 import java.util.HashMap;
 
 import com.google.gson.Gson;
@@ -86,6 +88,7 @@ public class Cache {
 		Type type_disc = new TypeToken<HashMap<String, Disc>>(){}.getType();
 		
 		Cache.gson = new GsonBuilder().create();
+		
 		BufferedReader br = new BufferedReader(new FileReader("storage/users.json"));
 		Cache.setUsers(Cache.gson.fromJson(br, type_user));
 		br.close();
