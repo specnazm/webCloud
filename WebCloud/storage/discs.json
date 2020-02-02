@@ -1,3 +1,1 @@
-{
-	"Disc1" : {"name" : "Disc1", "type" : "SSD", "capacity":512,"vm":"VM1"}
-}
+{"Disc2":{"name":"Disc2","type":"SSD","capacity":512,"vm":"VM1","org":"Neque porro"},"Disc1":{"name":"Disc1","type":"SSD","capacity":512,"vm":"VM1","org":"Neque porro"}}
