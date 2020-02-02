@@ -1259,6 +1259,11 @@ public class SparkMain {
 					for (Disc d : Cache.getVms().get(vm_name).getDiscs().values()) {
 						d.updateVM(vm_name, vm.getName());
 					}
+					
+					for(Disc d1 : vm.getDiscs().values()) {
+						d1.setVm(vm.getName());
+					}
+						
 					Cache.getVms().remove(vm_name);
 				}	
 				
