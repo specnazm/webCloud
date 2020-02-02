@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import org.graalvm.compiler.phases.common.RemoveValueProxyPhase;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
@@ -893,6 +895,9 @@ public class SparkMain {
 					vm.updateDisc(disc_name, disc);
 				}
 				
+				if(!disc.getName().equals(disc_name))
+					Cache.getDiscs().remove(disc_name);
+					
 				Cache.getDiscs().put(disc.getName(), disc);
 				Cache.save();
 				res.status(200);
@@ -983,7 +988,7 @@ public class SparkMain {
 				else
 				{
 					res.status(200);
-					return g.toJson(Cache.getDiscs().values());
+					return g.toJson(Cache.getVms().values());
 				}
 				
 			}
@@ -1028,48 +1033,56 @@ public class SparkMain {
 			
 		});
 		
-//		get("/api/vm/:name" , (req, res) -> {
-//			Session ss = req.session(true);
-//			User u = ss.attribute("user");
-//			res.type("application/json");
-//			String vm_name = req.params("name");
-//			
-//			if(u == null) {
-//				res.status(400);
-//				msg.addProperty("msg", "No user logged in, can't perform action.");
-//				return g.toJson(msg);
-//			}
-//			
-//			if(!Cache.getVms().containsKey(vm_name)) {
-//				res.status(400);
-//				msg.addProperty("msg", "No VM with such name.");
-//				return g.toJson(msg);
-//			}
-//			
-//			if (u.getRole() == Roles.USER)
-//			{
-//				res.status(403);
-//				msg.addProperty(property, value);
-//			}
-//			{
-//				if(u.getOrg().equals(Cache.getVms().get(vm_name).getOrg()))
-//				{
-//					res.status(200);
-//					return Cache.getVms().get(vm_name);				
-//				}else
-//				{
-//					res.status(400);
-//					msg.addProperty("msg", "User doesn't have permission to view VM.");
-//					return g.toJson(msg);
-//				}
-//			}else {
-//				res.status(200);
-//				return g.toJson(Cache.getVms().get(vm_name));
-//			}
-//				
-//			
-//		});
-//		
+		post("/api/vm" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in, can't perform action.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User doesn't have permission to add VM.");
+				return g.toJson(msg);
+			}
+			
+			String payload = req.body();
+			VM vm = g.fromJson(payload, VM.class);
+			
+			if(u.getRole() == Roles.ADMIN)
+				vm.setOrg(u.getOrg());
+			
+			
+			if(!vm.checkRequired()) {
+				res.status(400);
+				msg.addProperty("msg", "Fields missing.");
+				return g.toJson(msg);
+			}
+			
+			if(Cache.getVms().containsKey(vm.getName())) {
+				res.status(400);
+				msg.addProperty("msg", "Disc with such name already exists.");
+				return g.toJson(msg);
+			}else {
+				for (Disc disc : vm.getDiscs().values()) {
+					if(!disc.getOrg().equals(vm.getOrg()))
+					{
+						res.status(400);
+						msg.addProperty("msg", "Discs in VM have to belong to same organisation as VM.");
+						return g.toJson(msg);
+					}					
+				}
+				
+				Cache.putVM(vm);
+				
+				Cache.save();
+				return g.toJson(vm);
+			}
+		});
 	}
 
 }

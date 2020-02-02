@@ -158,6 +158,14 @@ public class Cache {
 		Cache.getDiscs().remove(disc_name);
 		
 	}
+
+	public static void putVM(VM vm) {
+		Cache.vms.put(vm.getName(), vm);
+		for (String disc_name : vm.getDiscs().keySet()) {
+			Cache.getDiscs().get(disc_name).setVm(vm.getName());
+		}
+		
+	}
 	
 	
 }

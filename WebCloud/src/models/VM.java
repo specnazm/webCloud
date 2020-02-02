@@ -1,7 +1,9 @@
 package src.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import src.models.*;
+import java.time.LocalDate;
 
 public class VM {
 	private String name;
@@ -11,7 +13,8 @@ public class VM {
 	private Integer gpuCores;
 	private Integer ram;
 	private HashMap<String, Disc> discs;
-	private boolean active;
+	private boolean active = true;
+	private ArrayList<LocalDate> log;
 	
 	
 	public boolean checkRequired() {
@@ -25,7 +28,7 @@ public class VM {
 		// TODO Auto-generated constructor stub
 	}
 
-	public VM(String name, String org, String category, Integer cpuCores, Integer gpuCores, Integer ram, HashMap<String, Disc> discs) {
+	public VM(String name, String org, String category, Integer cpuCores, Integer gpuCores, Integer ram, HashMap<String, Disc> discs, boolean active,ArrayList<LocalDate> log) {
 	super();
 	this.name = name;
 	this.org = org;
@@ -34,7 +37,8 @@ public class VM {
 	this.gpuCores = gpuCores;
 	this.ram = ram;
 	this.discs = discs;
-	this.active = true;
+	this.active = active;
+	this.log = log;	
 }
 
 	public String getName() {
