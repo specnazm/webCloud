@@ -132,7 +132,8 @@ export default {
         },
         deleteUser() {
             this.$store.dispatch(DELETE_USER, this.selectedUser.email)
-            .then( res => this.closeModal())
+            .then( res => { this.closeModal()
+                this.$router.push('/users')})
                     .catch(error => {
                         this.$router.push('/users');
                         alert(error.response.data.msg)

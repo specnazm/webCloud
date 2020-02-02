@@ -122,7 +122,7 @@ export default new Vuex.Store({
     },
     [DELETE_CATEGORY] : (state, email) => {
       const index = state.categories.findIndex(c => c.name == name)
-
+      
       state.categories = [...state.categories.slice(0, index), ...state.categories.slice(index + 1, state.categories.length)]
     }
   },
