@@ -8,13 +8,15 @@ import {
   GET_ORGANISATIONS, ADD_ORGANISATION, GET_ORGANISATION, EDIT_ORGANISATION, 
   GET_USERS, GET_USER,ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE, 
   GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY, 
-  GET_DISCS, GET_DISC, ADD_DISC, EDIT_DISC, DELETE_DISC } from './actions'
+  GET_DISCS, GET_DISC, ADD_DISC, EDIT_DISC, DELETE_DISC,
+  GET_VMS } from './actions'
 import { 
    AUTH_ERROR, AUTH_SUCCESS, 
    SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, 
    SET_USERS, SET_USER, SET_MODIFIED_USER,
    SET_CATEGORIES, SET_CATEGORY, SET_MODIFIED_CATEGORY,
-   SET_DISCS, SET_DISC, SET_MODIFIED_DISC } from './mutations'
+   SET_DISCS, SET_DISC, SET_MODIFIED_DISC,
+    SET_VMS  } from './mutations'
 
 Vue.use(Vuex)
 
@@ -34,7 +36,10 @@ export default new Vuex.Store({
     selectedCat: null,
 
     discs: [],
-    selectedDisc: null
+    selectedDisc: null,
+
+    vms: [],
+    selectedVM: null
   },
   getters : {
     isAuth: state => { 
@@ -59,7 +64,9 @@ export default new Vuex.Store({
 
     categories: state => state.categories,
 
-    discs: state => state.discs
+    discs: state => state.discs,
+
+    vms: state => state.vms
 
   },
   mutations: {
@@ -160,7 +167,12 @@ export default new Vuex.Store({
       const index = state.discs.findIndex(d => d.name == name)
       
       state.discs = [...state.discs.slice(0, index), ...state.discs.slice(index + 1, state.discs.length)]
-    }
+    },
+
+    [SET_VMS] : (state, vms) => {
+      state.vms = vms
+    },
+
   },
   actions: {
     [AUTH_REQUEST]: ({commit, dispatch}, data) => {
@@ -477,6 +489,19 @@ export default new Vuex.Store({
         .then(res => {
           commit(DELETE_disc, id);
           resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+
+    [GET_VMS]: ({commit, dispatch}, { org }) => {
+     
+      return new Promise((resolve, reject) => { 
+        axios.get(`/vm?org=${org}`)
+        .then(res => {
+          resolve(res)
         })
         .catch(err => {
           reject(err)

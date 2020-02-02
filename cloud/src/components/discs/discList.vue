@@ -8,7 +8,7 @@
             <div class="pull-right">
                 <div class="btn-group">
                     <button 
-                        v-if="role !== 'USER'"
+                        v-if="userRole !== 'USER'"
                         class="btn btn-info" 
                         id="list" 
                         @click="showModal = true">
@@ -54,19 +54,16 @@ import { SET_DISC } from '../../mutations'
       },
       data : function() {
           return {
-          showModal : false
+          showModal : false,
+          userRole: store.getters.role
           }
       },
       computed: {
           discs() {
             return this.$store.getters.discs
-          },
-          role() {
-              return this.$store.getters.role
           }
       },
       mounted() {
-        console.log('mounted od liste')
           // this.$store.dispatch(GET_DISCS)
           //     .then( res => console.log(res))
           //     .catch(error => alert(error.response.data.msg))

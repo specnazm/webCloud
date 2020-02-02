@@ -49,9 +49,21 @@
                           class="form-control" 
                           v-model="org" 
                          :disabled="disable"
-                          :selected="selOrg">
+                          :selected="selOrg"
+                          @change="onChange($event)">
                           <option v-for="o in organisations" v-bind:value="o.name" :key="o.name">
                            {{ o.name }}
+                          </option>
+                        </select>
+                    </div>
+                     <div v-if="!disc" class="input">
+                        <label for="org">Virtual machine</label>
+                        <select 
+                          class="form-control" 
+                          v-model="vm" 
+                          :selected="selVm">
+                          <option v-for="v in vms" v-bind:value="v.name" :key="v.name">
+                           {{ v.name }}
                           </option>
                         </select>
                     </div>
@@ -70,7 +82,7 @@
 </template>
 
 <script>
-import { ADD_DISC, EDIT_DISC, GET_ORGANISATIONS } from '../../actions'
+import { ADD_DISC, EDIT_DISC, GET_ORGANISATIONS, GET_VMS } from '../../actions'
 import store from '../../store'
 import { mapState } from 'vuex'
 
@@ -98,9 +110,10 @@ export default {
       this.setData()
     } else {
      if (store.getters.role === 'ADMIN') {
-     //   this.org = store.getters.org
-      //  this.selOrg = this.org
-      //  this.disable = true
+       this.org = store.getters.org
+       this.selOrg = this.org
+       this.disable = true
+       this.getVMS({ org: this.org })
     }
     else {
       this.$store.dispatch(GET_ORGANISATIONS)
@@ -111,7 +124,8 @@ export default {
     
   },
  computed:  mapState({
-    organisations: state => state.organisations
+    organisations: state => state.organisations,
+    vms : state => state.vms
   }),
   methods: {
     close() {
@@ -132,7 +146,6 @@ export default {
       this.name = ''
       this.capacity = ''
       this.type = ''
-      this.org = ''
       this.vm = ''
     },
     storeData() {
@@ -152,6 +165,17 @@ export default {
       })
       .catch(error => alert(error.response.data.msg)) 
   },
+    onChange(event) {
+      
+     const data = { org: this.event.target.value }
+     this.getVMS(data)
+    },
+    getVMS(data) {
+      console.log(data)
+      this.$store.dispatch(GET_VMS, data)
+        .then( res => this.vms = JSON.parse(res.data))
+        .catch(error => alert(error.response.data.msg))
+    }
 
 }
 }

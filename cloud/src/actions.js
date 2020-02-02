@@ -25,3 +25,5 @@ export const GET_DISCS = 'GET_DISCS'
 export const EDIT_DISC = 'EDIT_DISC'
 export const GET_DISC = 'GET_DISC'
 export const DELETE_DISC = 'DELETE_DISC'
+
+export const GET_VMS = 'GET_VMS'
