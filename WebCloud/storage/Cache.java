@@ -17,12 +17,14 @@ import com.google.gson.reflect.TypeToken;
 
 import src.models.Organisation;
 import src.models.User;
+import src.models.VM;
 import src.models.VMCategory;
 
 public class Cache {
 	private static HashMap<String, User> users;
 	private static HashMap<String, Organisation> orgs;
 	private static HashMap<String, VMCategory> categories;
+	private static HashMap<String, VM> vms;
 	private static Gson gson;
 	
 	public static void putOrg(String name, Organisation org)
@@ -64,6 +66,10 @@ public class Cache {
 		w = new FileWriter("storage/categories.json");
 		Cache.gson.toJson(Cache.categories, w);
 		w.close();
+		w = new FileWriter("storage/vms.json");
+		Cache.gson.toJson(Cache.vms, w);
+		w.close();
+		System.out.println(Cache.vms);
 	}
 	
 	public static void load() throws IOException
@@ -71,6 +77,8 @@ public class Cache {
 		Type type_user = new TypeToken<HashMap<String, User>>(){}.getType();
 		Type type_org = new TypeToken<HashMap<String, Organisation>>(){}.getType();
 		Type type_category = new TypeToken<HashMap<String, VMCategory>>(){}.getType();
+		Type type_vm = new TypeToken<HashMap<String, VM>>(){}.getType();
+		
 		Cache.gson = new GsonBuilder().create();
 		BufferedReader br = new BufferedReader(new FileReader("storage/users.json"));
 		Cache.setUsers(Cache.gson.fromJson(br, type_user));
@@ -81,7 +89,9 @@ public class Cache {
 		br = new BufferedReader(new FileReader("storage/categories.json"));
 		Cache.setCategories(Cache.gson.fromJson(br, type_category));
 		br.close();
-		
+		br = new BufferedReader(new FileReader("storage/vms.json"));
+		Cache.setVms(Cache.gson.fromJson(br, type_vm));
+		br.close();
 	}
 	
 	public static HashMap<String, User> getUsers() {
@@ -98,11 +108,19 @@ public class Cache {
 	}
 
 	public static HashMap<String, VMCategory> getCategories() {
-		return categories;
+		return Cache.categories;
 	}
 
 	public static void setCategories(HashMap<String, VMCategory> categories) {
 		Cache.categories = categories;
+	}
+
+	public static HashMap<String, VM> getVms() {
+		return Cache.vms;
+	}
+
+	public static void setVms(HashMap<String, VM> vms) {
+		Cache.vms = vms;
 	}
 	
 	
