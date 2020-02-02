@@ -1,0 +1,3 @@
+{
+	"Disc1" : {"name" : "Disc1", "type" : "SSD", "capacity":512,"vm":"VM1"}
+}

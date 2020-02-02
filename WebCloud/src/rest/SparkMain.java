@@ -25,6 +25,7 @@ import src.models.Roles;
 import src.models.User;
 import src.models.VM;
 import src.models.VMCategory;
+import src.models.Disc;
 import storage.Cache;
 
 public class SparkMain {
@@ -37,8 +38,6 @@ public class SparkMain {
 		
 		
 		Cache.load();
-		Cache.save();
-
 		
 		options("/*",
 		        (request, response) -> {
@@ -439,8 +438,6 @@ public class SparkMain {
 				
 				String payload = req.body();
 				User payload_user = g.fromJson(payload, User.class); 
-				System.out.println(u.getOrg());
-				System.out.println(payload_user.getOrg());
 				if (u.getRole() == Roles.ADMIN && (!u.getOrg().equals(payload_user.getOrg())))
 				{
 					res.status(403);
@@ -558,7 +555,7 @@ public class SparkMain {
 			
 		});
 		
-//CATEGORIES
+//CATEGORIES----------------------------------------------------------------------------------------------------------------------------------
 		
 		get("/api/category" , (req, res) -> {
 			Session ss = req.session(true);
@@ -658,11 +655,113 @@ public class SparkMain {
 				}
 				
 				Cache.getCategories().remove(cat_name);
+				Cache.save();
 				res.status(200);
 				return true;
 			}
 			
 		});
+		
+		get("/api/category/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String cat_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}else
+			{
+				if(!Cache.getCategories().containsKey(cat_name)) 
+				{
+					res.status(400);
+					msg.addProperty("msg", "No such category exists.");
+					return g.toJson(msg);
+				}
+				res.status(200);
+				return g.toJson(Cache.getCategories().get(cat_name));
+			}
+			
+		}); 
+		
+		put("/api/category/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String cat_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}else
+			{
+				if(!Cache.getCategories().containsKey(cat_name)) 
+				{
+					res.status(400);
+					msg.addProperty("msg", "No such category exists.");
+					return g.toJson(msg);
+				}
+				
+				String payload = req.body();
+				VMCategory cat = g.fromJson(payload, VMCategory.class);
+				
+				for (VM vm : Cache.getVms().values())
+					vm.updateCat(cat_name, cat);
+				
+				Cache.removeCat(cat_name);
+				Cache.putCat(cat.getName(), cat);
+				Cache.save();
+				res.status(200);
+				return g.toJson(cat);
+			}
+			
+		}); 
+		
+//DISCS----------------------------------------------------------------------------------------------------------------------------------
+	
+		get("/api/disc" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			HashMap<String, Disc> discs = new HashMap<String,Disc>();
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				String org_name = u.getOrg();
+				for (VM vm : Cache.getOrgs().get(org_name).getRsrc().values())
+				{
+					discs.putAll(vm.getDiscs());
+				}
+				res.status(200);
+				return g.toJson(discs.values());
+			}else
+			{
+				res.status(200);
+				return g.toJson(Cache.getDiscs().values());
+			}
+			
+		});
+	
 	}
 
 }
