@@ -11,6 +11,7 @@ public class VM {
 	private Integer gpuCores;
 	private Integer ram;
 	private HashMap<String, Disc> discs;
+	private boolean active;
 	
 	
 	public boolean checkRequired() {
@@ -33,6 +34,7 @@ public class VM {
 	this.gpuCores = gpuCores;
 	this.ram = ram;
 	this.discs = discs;
+	this.active = true;
 }
 
 	public String getName() {
@@ -109,4 +111,14 @@ public class VM {
 		if (new_disc.getVm().equals(this.name))
 			this.discs.put(new_disc.getName(), new_disc);
 	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void toggleActive() {
+		this.active = !this.active;
+	}
+	
+	
 }

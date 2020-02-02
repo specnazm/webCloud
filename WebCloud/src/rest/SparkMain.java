@@ -794,7 +794,7 @@ public class SparkMain {
 						return g.toJson(msg);
 					}else {
 						res.status(200);
-						if (!(disc.getVm() == ""))
+						if (!(disc.getVm().equals("")))
 							Cache.putDisc(disc.getName(), disc);
 						else
 							Cache.getDiscs().put(disc.getName(), disc);
@@ -990,8 +990,86 @@ public class SparkMain {
 			
 		});
 		
+		get("/api/vm/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String vm_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in, can't perform action.");
+				return g.toJson(msg);
+			}
+			
+			if(!Cache.getVms().containsKey(vm_name)) {
+				res.status(400);
+				msg.addProperty("msg", "No VM with such name.");
+				return g.toJson(msg);
+			}
+			
+			if (u.getRole() == Roles.USER || u.getRole() == Roles.ADMIN)
+			{
+				if(u.getOrg().equals(Cache.getVms().get(vm_name).getOrg()))
+				{
+					res.status(200);
+					return Cache.getVms().get(vm_name);				
+				}else
+				{
+					res.status(400);
+					msg.addProperty("msg", "User doesn't have permission to view VM.");
+					return g.toJson(msg);
+				}
+			}else {
+				res.status(200);
+				return g.toJson(Cache.getVms().get(vm_name));
+			}
+				
+			
+		});
 		
-		
+//		get("/api/vm/:name" , (req, res) -> {
+//			Session ss = req.session(true);
+//			User u = ss.attribute("user");
+//			res.type("application/json");
+//			String vm_name = req.params("name");
+//			
+//			if(u == null) {
+//				res.status(400);
+//				msg.addProperty("msg", "No user logged in, can't perform action.");
+//				return g.toJson(msg);
+//			}
+//			
+//			if(!Cache.getVms().containsKey(vm_name)) {
+//				res.status(400);
+//				msg.addProperty("msg", "No VM with such name.");
+//				return g.toJson(msg);
+//			}
+//			
+//			if (u.getRole() == Roles.USER)
+//			{
+//				res.status(403);
+//				msg.addProperty(property, value);
+//			}
+//			{
+//				if(u.getOrg().equals(Cache.getVms().get(vm_name).getOrg()))
+//				{
+//					res.status(200);
+//					return Cache.getVms().get(vm_name);				
+//				}else
+//				{
+//					res.status(400);
+//					msg.addProperty("msg", "User doesn't have permission to view VM.");
+//					return g.toJson(msg);
+//				}
+//			}else {
+//				res.status(200);
+//				return g.toJson(Cache.getVms().get(vm_name));
+//			}
+//				
+//			
+//		});
+//		
 	}
 
 }
