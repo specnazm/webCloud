@@ -784,7 +784,7 @@ public class SparkMain {
 					String org_name = req.queryParams("org");
 					for (Disc disc : Cache.getDiscs().values())
 					{
-						if(disc.getOrg().equals(org_name))
+						if(disc.getOrg().equals(org_name) && disc.getVm().equals(""))
 							discs.add(disc);
 					}
 					res.status();
@@ -870,7 +870,7 @@ public class SparkMain {
 					return g.toJson(msg);
 				}
 				
-				if(Cache.getDiscs().get(disc_name).getVm() != null)
+				if(Cache.getDiscs().get(disc_name).getVm() != "")
 					Cache.removeDisc(disc_name);
 				else
 					Cache.getDiscs().remove(disc_name);
@@ -1204,6 +1204,7 @@ public class SparkMain {
 			}
 			
 		}); 
+		
 		
 	}
 
