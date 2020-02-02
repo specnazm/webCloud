@@ -9,14 +9,19 @@ import {
   GET_USERS, GET_USER,ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE, 
   GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY, 
   GET_DISCS, GET_DISC, ADD_DISC, EDIT_DISC, DELETE_DISC,
-  GET_VMS } from './actions'
+  GET_VMS, 
+  ADD_VM,
+  EDIT_VM,
+  DELETE_VM} from './actions'
 import { 
    AUTH_ERROR, AUTH_SUCCESS, 
    SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, 
    SET_USERS, SET_USER, SET_MODIFIED_USER,
    SET_CATEGORIES, SET_CATEGORY, SET_MODIFIED_CATEGORY,
    SET_DISCS, SET_DISC, SET_MODIFIED_DISC,
-    SET_VMS  } from './mutations'
+    SET_VMS,  
+    SET_VM,
+    SET_MODIFIED_VM} from './mutations'
 
 Vue.use(Vuex)
 
@@ -96,7 +101,6 @@ export default new Vuex.Store({
     },
     [SET_MODIFIED_ORG] : (state, org) => {
       let newState = {}
-      console.log('u state', org)
       for (const orgName in Object.keys(state.organisations)) {
         if (orgName === org.Name) {
             newState[orgName] = org
@@ -398,7 +402,7 @@ export default new Vuex.Store({
     [EDIT_CATEGORY]: ({commit, dispatch}, data) => {
  
       return new Promise((resolve, reject) => { 
-        axios(`/category/${data.name}`, {
+        axios(`/category/${data.oldName}`, {
           method: 'PUT',
           data: JSON.stringify(data)
         })
@@ -432,7 +436,7 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => { 
         axios.get('/disc')
         .then(res => {
-          commit(SET_discS, res.data);
+          commit(SET_DISCS, res.data);
           resolve(res)
         })
         .catch(err => {
@@ -444,7 +448,7 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => { 
         axios.post('/disc', JSON.stringify(data))
         .then(res => {
-          commit(ADD_disc, res.data);
+          commit(ADD_DISC, res.data);
           resolve(res)
         })
         .catch(err => {
@@ -456,7 +460,7 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => { 
         axios.get(`/disc/${name}`)
         .then(res => {
-          commit(SET_disc, res.data);
+          commit(SET_DISC, res.data);
           resolve(res)
         })
         .catch(err => {
@@ -467,12 +471,12 @@ export default new Vuex.Store({
     [EDIT_DISC]: ({commit, dispatch}, data) => {
  
       return new Promise((resolve, reject) => { 
-        axios(`/disc/${data.name}`, {
+        axios(`/disc/${data.oldName}`, {
           method: 'PUT',
           data: JSON.stringify(data)
         })
         .then(res => {
-          commit(SET_MODIFIED_CATEGORY, res.data);
+          commit(SET_MODIFIED_DISC, res.data);
           resolve()
         })
         .catch(err => {
@@ -487,7 +491,7 @@ export default new Vuex.Store({
           method: 'DELETE'
         })
         .then(res => {
-          commit(DELETE_disc, id);
+          commit(DELETE_DISC, id)
           resolve()
         })
         .catch(err => {
@@ -496,12 +500,69 @@ export default new Vuex.Store({
       })
     },
 
+
     [GET_VMS]: ({commit, dispatch}, { org }) => {
-     
+    
       return new Promise((resolve, reject) => { 
         axios.get(`/vm?org=${org}`)
         .then(res => {
+          commit(SET_VMS, res.data);
           resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [ADD_VM]: ({commit, dispatch}, data) => {
+      return new Promise((resolve, reject) => { 
+        axios.post('/vm', JSON.stringify(data))
+        .then(res => {
+          commit(ADD_VM, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [GET_VM]: ({commit, dispatch}, { name } ) => {
+      return new Promise((resolve, reject) => { 
+        axios.get(`/vm/${name}`)
+        .then(res => {
+          commit(SET_VM, res.data);
+          resolve(res)
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [EDIT_VM]: ({commit, dispatch}, data) => {
+ 
+      return new Promise((resolve, reject) => { 
+        axios(`/vm/${data.oldName}`, {
+          method: 'PUT',
+          data: JSON.stringify(data)
+        })
+        .then(res => {
+          commit(SET_MODIFIED_VM, res.data);
+          resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+    [DELETE_VM]: ({commit, dispatch}, id) => {
+ 
+      return new Promise((resolve, reject) => { 
+        axios(`/vm/${id}`, {
+          method: 'DELETE'
+        })
+        .then(res => {
+          commit(DELETE_VM, id);
+          resolve()
         })
         .catch(err => {
           reject(err)

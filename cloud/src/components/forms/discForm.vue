@@ -50,7 +50,7 @@
                           v-model="org" 
                          :disabled="disable"
                           :selected="selOrg"
-                          @change="onChange($event)">
+                          v-on:change="onChange($event)">
                           <option v-for="o in organisations" v-bind:value="o.name" :key="o.name">
                            {{ o.name }}
                           </option>
@@ -104,8 +104,6 @@ export default {
     }
   },
   mounted() {
-    console.log('mounted od disc form')
-    console.log('disc u discform', this.disc)
     if(this.disc) {
       this.setData()
     } else {
@@ -136,8 +134,8 @@ export default {
     setData() {
       this.name = this.disc.name
       this.capacity = this.disc.capacity
-      this.vm = this.disc.vm.name
-      this.org = this.disc.org.name,
+      this.vm = this.disc.vm
+      this.org = this.disc.org,
       this.type = this.disc.type,
       this.title = "Edit disc"
       this.btnTitle = "Save changes"
@@ -156,7 +154,11 @@ export default {
                 org: this.org,
                 vm: this.vm
                 }
-      const action = this.disc? EDIT_DISC: ADD_DISC
+       let action = ADD_DISC
+       if (this.disc) {
+          action = EDIT_DISC
+          data.oldName = this.disc.name
+        }
       this.$store.dispatch(action, data)
       .then( res => {
           if (action === EDIT_DISC)
@@ -166,17 +168,14 @@ export default {
       .catch(error => alert(error.response.data.msg)) 
   },
     onChange(event) {
-      
-     const data = { org: this.event.target.value }
-     this.getVMS(data)
+      const data = { org: event.target.value }
+      this.getVMS(data)
     },
     getVMS(data) {
-      console.log(data)
       this.$store.dispatch(GET_VMS, data)
-        .then( res => this.vms = JSON.parse(res.data))
+        .then( res => console.log(res))
         .catch(error => alert(error.response.data.msg))
     }
-
 }
 }
 </script>

@@ -25,7 +25,7 @@
                 </div>
                 <div class="col-md-2">
                     <button
-                    
+                      v-if="role !== 'USER'"
                       class="btn-user" 
                       @click="showModal = true">Edit Disc</button>
                 </div>
@@ -109,7 +109,8 @@ export default {
             vm: '',
             org: '',
             type: '',
-            showModal : false
+            showModal : false,
+            role: store.getters.role
         }
     },
     computed: mapState([    

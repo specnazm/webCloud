@@ -57,7 +57,6 @@ import { SET_USER } from '../../mutations'
           }
       },
       mounted() {
-        console.log('mounted')
           this.$store.dispatch(GET_USERS)
               .then( res => console.log(res))
               .catch(error => alert(error.response.data.msg))

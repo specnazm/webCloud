@@ -12,17 +12,17 @@
          <li v-if="isAuth">
           <router-link to="/dashboard">Dashboard</router-link>
         </li>
-         <li v-if="this.$store.getters.isAuth">
+         <li v-if="isAuth">
           <a class="logout" @click="logout">Log out</a>
         </li>
-        <li v-if="this.$store.getters.isAuth">
+        <li v-if="isAuth">
           <SidebarBtn :isOpen="isPanelOpen" @toggle="toggleSideBar"></SidebarBtn>
         </li>
       </ul>
     </nav>
   </div>
   <Sidebar :isOpen="isPanelOpen">
-     <Menu :userRole="userRole" @toggle="toggleSideBar"/>
+     <Menu  @toggle="toggleSideBar"/>
    </Sidebar>
   </div>
 </template>
@@ -32,6 +32,7 @@ import { AUTH_LOGOUT } from '../../actions'
 import SidebarBtn from './sidebarBtn'
 import Sidebar from './Sidebar';
 import Menu from '../menu/menu';
+import {  mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -39,15 +40,13 @@ export default {
    Sidebar,
    Menu
  },
- computed: {
-   isAuth() {
-    return this.$store.getters.isAuth
-   }
-  },
+  computed: mapGetters([
+    'isAuth'
+  ]
+  ),
   data: function() {
     return {
-      isPanelOpen: false,
-      userRole: this.$store.getters.role 
+      isPanelOpen: false
       }
   },
   methods : {

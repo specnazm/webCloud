@@ -4,14 +4,14 @@
    <ul class="sidebar-panel-nav">
     <li><router-link 
             to="/users" 
-             v-if="userRole !== 'USER'"
+             v-if="role !== 'USER'"
              @click.native="closeSideBar"
            >
             Users
             </router-link></li>
     <li><router-link 
             to="/organisations"  
-            v-if="userRole !== 'USER'"
+            v-if="role !== 'USER'"
              @click.native="closeSideBar"
             >
             Organizations
@@ -19,7 +19,7 @@
    </li>
     <li><router-link 
             to="/categories"  
-            v-if="userRole === 'SUPER_ADMIN'"
+            v-if="role === 'SUPER_ADMIN'"
            @click.native="closeSideBar"
            >
             Categories
@@ -32,19 +32,21 @@
 
 <script>
 import UserInfo from './userInfo'
-import { SET_USER } from '../../mutations'
+import {  mapGetters } from 'vuex';
 
 export default {
         name: "userMenu",
         components: {
                 UserInfo
         },
-        props : ['userRole'],
         methods: {
                 closeSideBar() {
                          this.$emit('toggle')
                 }
-        }
+        },
+         computed: mapGetters([
+                'role',
+        ])
         }
 </script>
 

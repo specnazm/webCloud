@@ -33,8 +33,8 @@
       <th scope="row">{{index(ind)}}</th>
       <td>{{d.name}}</td>
       <td>{{d.capacity}}</td>
-      <td>{{d.vm.name}}</td>
-      <td>{{d.org.name}}</td>
+      <td>{{d.vm}}</td>
+      <td>{{d.org}}</td>
     </tr>
   </tbody>
 </table>
@@ -64,9 +64,9 @@ import { SET_DISC } from '../../mutations'
           }
       },
       mounted() {
-          // this.$store.dispatch(GET_DISCS)
-          //     .then( res => console.log(res))
-          //     .catch(error => alert(error.response.data.msg))
+          this.$store.dispatch(GET_DISCS)
+              .then( res => console.log(res))
+              .catch(error => alert(error.response.data.msg))
       },
       methods: {
           closeModal() {

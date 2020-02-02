@@ -115,7 +115,7 @@ export default {
                     this.$router.push('/categories') })
             .catch(error => {
                 alert(error.response.data.msg)
-                this.$router.push('/users')})
+                this.$router.push('/categories')})
         }
     },
     mounted() {

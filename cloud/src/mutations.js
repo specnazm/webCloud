@@ -19,3 +19,5 @@ export const SET_DISC = 'SET_DISC'
 export const SET_MODIFIED_DISC = 'SET_MODIFIED_DISC'
 
 export const SET_VMS = 'SET_VMS'
+export const SET_VM = 'SET_VM'
+export const SET_MODIFIED_VM = 'SET_MODIFIED_VM'

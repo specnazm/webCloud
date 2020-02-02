@@ -116,7 +116,11 @@ export default {
                 cpuCores: this.cpuCores,
                 ram: this.ram
                 }
-      const action = this.category? EDIT_CATEGORY: ADD_CATEGORY
+      let action = ADD_CATEGORY
+       if (this.category) {
+          action = EDIT_CATEGORY
+          data.oldName = this.category.name
+        }
       this.$store.dispatch(action, data)
       .then( res => {
           if (action === EDIT_CATEGORY)
