@@ -95,7 +95,6 @@ import { GET_DISC , DELETE_DISC } from '../../actions'
 import { SET_DISC } from '../../mutations'
 import { mapState } from 'vuex'
 import store from '../../store'
-
 export default {
     name: "discPage",
     components: {

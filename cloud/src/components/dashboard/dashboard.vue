@@ -1,5 +1,6 @@
 <template>
 <div id="vms" class="container">
+
     <Form :showModal="showModal" @closeModal="closeModal"/>
     <div class="row">
         <div class="col-lg-12 my-3">
@@ -34,12 +35,35 @@
     </tr>
   </tbody>
 </table>
+  <!-- Search form -->
+<form class="form-inline" @submit.prevent="searchVM">
+  <i class="fas fa-search" aria-hidden="false"></i>
+  <input v-model="search.name" class="form-control form-control-sm ml-3 w-55" type="text" placeholder="Search"
+    aria-label="Search">
+    <div>
+    <div>
+    <input min = 0 v-model="search.cpuLow" class="form-control form-control-sm ml-3 w-55" type="number" placeholder="Cpu low">
+    <input  min = 0 v-model="search.cpuHigh" class="form-control form-control-sm ml-3 w-55" type="number" placeholder="Cpu high">
+    </div>
+    <div>
+    <input min = 0 v-model="search.gpuLow" class="form-control form-control-sm ml-3 w-55" type="number" placeholder="Gpu low">
+    <input min = 0 v-model="search.gpuHigh" class="form-control form-control-sm ml-3 w-55" type="number" placeholder="Ggpu high">
+    </div>
+    <div>
+    <input min = 0 v-model="search.ramLow" class="form-control form-control-sm ml-3 w-55" type="number" placeholder="Ram low">
+    <input min = 0 v-model="search.ramHigh" class="form-control form-control-sm ml-3 w-55" type="number" placeholder="Ram high">
+    </div>
+    </div>
+    <div>
+    <button min = 0 type="submit" class="btn btn-primary form-control form-control-sm ml-3 w-55">Search</button>
+    </div>
+</form>
 </div>
 </template>
 
 <script>
-import Form from '../forms/vmForm'
-import { GET_VMS } from '../../actions'
+import Form from '../forms/vmFormAdd'
+import { GET_VMS, SEARCH_VM } from '../../actions'
 import store from '../../store'
 import { SET_VM } from '../../mutations'
 
@@ -51,7 +75,16 @@ import { SET_VM } from '../../mutations'
       data : function() {
           return {
           showModal : false,  
-          userRole: store.getters.role
+          userRole: store.getters.role,
+          search : {
+            name : null,
+            cpuLow: null,
+            cpuHigh : null,
+            gpuLow: null,
+            gpuHigh : null,
+            ramLow: null,
+            ramHigh : null,
+          }
           }
       },
       computed: {
@@ -61,7 +94,6 @@ import { SET_VM } from '../../mutations'
       },
       mounted() {
         const data = { org : store.getters.org }
-        console.log(data)
           this.$store.dispatch(GET_VMS, data)
               .then( res => console.log(res))
               .catch(error => alert(error.response.data.msg))
@@ -76,7 +108,13 @@ import { SET_VM } from '../../mutations'
           vmInfo(vm) {
             store.commit(SET_VM, vm)
             this.$router.push(`/vm/${vm.name}`)
-          }
+          },
+     
+        searchVM() {
+          this.$store.dispatch(SEARCH_VM, this.search)
+                .then( res => console.log(res))
+                .catch(error => alert(error.response.data.msg))
+        }
       }
   }
 </script>
