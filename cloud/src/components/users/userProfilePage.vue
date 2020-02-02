@@ -1,10 +1,10 @@
 <template>
-<div id="userPage" >
-    <Form 
+<div id="userProfilePage" >
+    <ProfileForm 
         :showModal="showModal" 
         @closeModal="closeModal" 
-        :user="selectedUser"
-        />
+        :user="loggedUser"
+    />
     <div class="container emp-profile">
             <div class="row">
                 <div class="col-md-4">
@@ -14,8 +14,8 @@
                 </div>
                 <div class="col-md-6">
                     <div class="profile-head">
-                        <h5>{{name}} {{surname}}</h5>
-                        <h6>{{role}}</h6>
+                        <h5>{{loggedUser.name}} {{loggedUser.surname}}</h5>
+                        <h6>{{loggedUser.role}}</h6>
                         <p class="proile-rating">  <span></span></p>
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item">
@@ -30,7 +30,6 @@
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <button  type="button" class="btn btn-outline-danger" @click="deleteUser">Delete user</button>
                 </div>
                 <div class="col-md-8">
                     <div class="tab-content profile-tab" id="myTabContent">
@@ -40,7 +39,7 @@
                                     <label>User email</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{email}}</p>
+                                    <p>{{loggedUser.email}}</p>
                                 </div>
                             </div>
                             <div class="row">
@@ -48,7 +47,7 @@
                                     <label>Name</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{name}}</p>
+                                    <p>{{loggedUser.name}}</p>
                                 </div>
                             </div>
                             <div class="row">
@@ -56,7 +55,7 @@
                                     <label>Surname</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{surname}}</p>
+                                    <p>{{loggedUser.surname}}</p>
                                 </div>
                             </div>
                             <div class="row">
@@ -64,7 +63,7 @@
                                     <label>Password</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{password}}</p>
+                                    <p>{{loggedUser.password}}</p>
                                 </div>
                             </div>
                             <div class="row">
@@ -72,7 +71,7 @@
                                     <label>Organisation</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{org}}</p>
+                                    <p>{{loggedUser.org}}</p>
                                 </div>
                             </div>
                                 <div class="row">
@@ -80,7 +79,7 @@
                                     <label>Role</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{role}}</p>
+                                    <p>{{loggedUser.role}}</p>
                                 </div>
                             </div>
                         </div>
@@ -93,71 +92,30 @@
 
 <script>
 import Form from '../forms/userForm'
+import ProfileForm from '../forms/profileForm'
 import { GET_USER, DELETE_USER } from '../../actions'
 import { SET_USER } from '../../mutations'
 import { mapState } from 'vuex'
 import store from '../../store'
 
 export default {
-    name: "userPage",
-    components: {
-        Form
-    },
-    data : function() {
+    name: "userProfilePage",
+        data : function() {
         return {
-            routeName : '',
-            name: '',
-            surname : '',
-            email: '',
-            password: '',
-            role: '',
-            org: '',
             showModal : false
         }
     },
-    computed: mapState([    
-        'selectedUser'
-    ]),
+    components: {
+        ProfileForm
+    },
+   computed: mapState({
+    loggedUser: state => state.user
+   }),
     methods: {
-        setData(user) {
-            this.name = user.name
-            this.surname = user.surname
-            this.email = user.email
-            this.role = user.role
-            this.org = user.org
-            this.password = user.password
-        },
         closeModal() {
             this.showModal = false;
         },
-        deleteUser() {
-            this.$store.dispatch(DELETE_USER, this.selectedUser.email)
-            .then( res => this.closeModal())
-                    .catch(error => {
-                        this.$router.push('/users');
-                        alert(error.response.data.msg)
-                    })
-        }
-    },
-    mounted() {
-        this.routeName =  this.$route.params.email
-        const data = { email: this.routeName }
-        if (this.selectedUser)
-            if(this.selectedUser.email === data.email)
-                this.setData(this.selectedUser)
-        else {
-             this.$store.dispatch(GET_USER, data)
-                    .then( res => this.setData(res.data))
-                    .catch(error => {
-                        this.$router.push('/dashboard');
-                        alert(error.response.data.msg)
-                    })
-        }
-    },
-    beforeRouteLeave (to, from, next) {
-         this.$store.commit(SET_USER, null)
-         next()
-  }
+    }
 }
 </script>
 

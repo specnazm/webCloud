@@ -22,11 +22,11 @@
                             v-model="name">
                     </div>
                     <div class="input">
-                        <label for="description">Description</label>
+                        <label for="desc">Description</label>
                         <input
                             type="text"
-                            id="description"
-                            v-model="description">
+                            id="desc"
+                            v-model="desc">
                     </div>
                     <label for="logo">Upload logo</label>
                     <input 
@@ -59,7 +59,7 @@ export default {
      data () {
       return {
         name: '',
-        description: '',
+        desc: '',
         logo: null,
         nameNotUnique: false,
         title: "New organisation",
@@ -84,14 +84,14 @@ export default {
       },
       setData() {
         this.name = this.org.name
-        this.description = this.org.desc
+        this.desc = this.org.desc
         this.logo = this.org.logo_url
         this.title = "Edit organisation"
         this.btnTitle = "Save changes"
       },
       resetData() {
         this.name = ''
-        this.description = ''
+        this.desc = ''
         this.logo = null
         this.nameNotUnique = false
     },
@@ -109,7 +109,7 @@ export default {
       storeData() {
         const data = { 
                     name: this.name, 
-                    description: this.description, 
+                    desc: this.desc, 
                     logo: this.logo
                     }
         let action = ADD_ORGANISATION

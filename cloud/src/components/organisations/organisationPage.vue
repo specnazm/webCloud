@@ -57,8 +57,10 @@
 <script>
 import { GET_ORGANISATION, EDIT_ORGANISATION } from '../../actions'
 import Form from '../forms/organisationForm'
+import { SET_ORGANISATION } from '../../mutations'
 
 export default {
+    props: ['name'],
     name: "organisationPage",
      components: {
             Form
@@ -74,6 +76,7 @@ export default {
             showModal : false
         }
     },
+    
     computed: {
         org() {
             return this.$store.getters.selectedOrg 
@@ -98,6 +101,7 @@ export default {
             }
     },
     mounted() {
+        console.log('heeeere')
         this.routeName =  this.$route.params.name
         const data = { name: this.routeName }
         if (this.org)
@@ -111,8 +115,11 @@ export default {
                 alert(error.response.data.msg)
             })
         }
-  
-    }
+    },
+     beforeRouteLeave (to, from, next) {
+         this.$store.commit(SET_ORGANISATION, null)
+         next()
+  }
 }
 </script>
 
