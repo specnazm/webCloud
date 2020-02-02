@@ -12,6 +12,7 @@ import static spark.Spark.delete;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import com.google.gson.Gson;
@@ -22,6 +23,7 @@ import spark.Session;
 import src.models.Organisation;
 import src.models.Roles;
 import src.models.User;
+import src.models.VM;
 import src.models.VMCategory;
 import storage.Cache;
 
@@ -35,6 +37,8 @@ public class SparkMain {
 		
 		
 		Cache.load();
+		Cache.save();
+
 		
 		options("/*",
 		        (request, response) -> {
@@ -598,7 +602,7 @@ public class SparkMain {
 				String payload = req.body();
 				VMCategory cat = g.fromJson(payload, VMCategory.class);
 				if(cat.checkRequired()) {
-					if(Cache.getOrgs().containsKey(cat.getName())) {
+					if(Cache.getCategories().containsKey(cat.getName())) {
 						res.status(400);
 						msg.addProperty("msg", "Category with same name already exists.");
 						return g.toJson(msg);
@@ -613,6 +617,49 @@ public class SparkMain {
 					msg.addProperty("msg", "Fields missing.");
 					return g.toJson(msg);
 				}
+			}
+			
+		});
+		
+		delete("/api/category/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String cat_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission.");
+				return g.toJson(msg);
+			}else
+			{
+				
+				for (VM vm : Cache.getVms().values())
+				{
+					if(vm.getCategory().equals(cat_name))
+					{
+						res.status(400);
+						msg.addProperty("msg", "Can't delete category referenced in virtual machines");
+						return g.toJson(msg);
+					}
+				}
+				
+				if(!Cache.getCategories().containsKey(cat_name))
+				{
+					res.status(400);
+					msg.addProperty("msg", "Can't delete non-existing category");
+					return g.toJson(msg);
+				}
+				
+				Cache.getCategories().remove(cat_name);
+				res.status(200);
+				return true;
 			}
 			
 		});
