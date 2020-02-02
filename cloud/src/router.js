@@ -11,6 +11,7 @@ import UserList from './components/users/userList'
 import UserPage from './components/users/userPage'
 import UserProfilePage from './components/users/userProfilePage'
 import CategoryList from './components/categories/CategoryList'
+import CategoryPage from './components/categories/CategoryPage'
 
 Vue.use(VueRouter)
 
@@ -30,6 +31,7 @@ const routes = [
   { path: '/user/:email', component: UserPage},
   { path: '/me', component: UserProfilePage },
   { path: '/categories', component: CategoryList },
+  { path: '/category/:name', component: CategoryPage },
 
 ]
 

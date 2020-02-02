@@ -70,7 +70,7 @@ import { SET_CATEGORY } from '../../mutations'
           },
           categoryInfo(cat) {
             store.commit(SET_CATEGORY, cat)
-            this.$router.push(`/user/${cat.name}`)
+            this.$router.push(`/category/${cat.name}`)
           }
       },
        beforeRouteEnter(to,from,next) {

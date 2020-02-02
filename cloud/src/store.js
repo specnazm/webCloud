@@ -25,7 +25,8 @@ export default new Vuex.Store({
     organisation: null,
     users: [],
     selectedUser : null,
-    categories : []
+    categories : [],
+    selectedCat: null
   },
   getters : {
     isAuth: state => { 
@@ -37,14 +38,19 @@ export default new Vuex.Store({
       state.user = JSON.parse(localStorage.getItem('user'))
       return state.user ? state.user.role :  ""
      },
+
     org: state => { 
       state.user = JSON.parse(localStorage.getItem('user'))
       return state.user ? state.user.org :  ""
     },
     orgs: state => state.organisations,
     selectedOrg: state => state.organisation,
+
     users: state => state.users,
-    selectedUser: state => state.selectedUser
+    selectedUser: state => state.selectedUser,
+
+    categories: state => state.categories
+
   },
   mutations: {
     [AUTH_REQUEST]: (state) => {
@@ -106,7 +112,7 @@ export default new Vuex.Store({
     [ADD_CATEGORY] : (state, cat) => {
       state.categories = [...state.categories, cat]
     },
-    [SET_MODIFIED_CATEGORY] : (state, cat) => {
+    [SET_CATEGORY] : (state, cat) => {
       state.selectedCat = {...cat}
     },
     [SET_MODIFIED_CATEGORY] : (state, cat) => {

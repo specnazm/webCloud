@@ -17,7 +17,7 @@
    </li>
     <li><router-link 
             to="/categories"  
-            v-if="role !== 'USER'"
+            v-if="role === 'SUPER_ADMIN'"
             @click.native="toggleSideBar">
             Categories
             </router-link></li>

@@ -1,21 +1,20 @@
 <template>
-<div id="userPage" >
+<div id="categoryPage" >
     <Form 
         :showModal="showModal" 
         @closeModal="closeModal" 
-        :user="selectedUser"
+        :category="selectedCat"
         />
     <div class="container emp-profile">
             <div class="row">
                 <div class="col-md-4">
                     <div class="profile-img">
-                        <img src="../../../img/userImg.jpg" alt="User profile photo"/>
+                        <img src="../../../img/cat.png" alt="Category photo"/>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="profile-head">
-                        <h5>{{name}} {{surname}}</h5>
-                        <h6>{{role}}</h6>
+                        <h5>{{name}}</h5>
                         <p class="proile-rating">  <span></span></p>
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                             <li class="nav-item">
@@ -25,27 +24,19 @@
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <button class="btn-user" @click="showModal = true">Edit Profile</button>
+                    <button class="btn-user" @click="showModal = true">Edit Category</button>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <button  type="button" class="btn btn-outline-danger" @click="deleteUser">Delete user</button>
+                    <button  type="button" class="btn btn-outline-danger" @click="deleteCat">Delete category</button>
                 </div>
                 <div class="col-md-8">
                     <div class="tab-content profile-tab" id="myTabContent">
                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label>User email</label>
-                                </div>
-                                <div class="col-md-6">
-                                    <p>{{email}}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label>Name</label>
+                                    <label>Name :</label>
                                 </div>
                                 <div class="col-md-6">
                                     <p>{{name}}</p>
@@ -53,34 +44,26 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label>Surname</label>
+                                    <label>Number of CPU cores :</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{surname}}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label>Password</label>
-                                </div>
-                                <div class="col-md-6">
-                                    <p>{{password}}</p>
+                                    <p>{{cpuCores}}</p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label>Organisation</label>
+                                    <label>Number of GPU cores :</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{org}}</p>
+                                    <p>{{gpuCores}}</p>
                                 </div>
                             </div>
-                                <div class="row">
+                            <div class="row">
                                 <div class="col-md-6">
-                                    <label>Role</label>
+                                    <label>Ram memory size in GB :</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p>{{role}}</p>
+                                    <p>{{ram}}</p>
                                 </div>
                             </div>
                         </div>
@@ -92,14 +75,14 @@
 </template>
 
 <script>
-import Form from '../forms/userForm'
-import { GET_USER, DELETE_USER } from '../../actions'
-import { SET_USER } from '../../mutations'
+import Form from '../forms/categoryForm'
+import { GET_CATEGORY , DELETE_CATEGORY } from '../../actions'
+import { SET_CATEGORY } from '../../mutations'
 import { mapState } from 'vuex'
 import store from '../../store'
 
 export default {
-    name: "userPage",
+    name: "categoryPage",
     components: {
         Form
     },
@@ -107,46 +90,39 @@ export default {
         return {
             routeName : '',
             name: '',
-            surname : '',
-            email: '',
-            password: '',
-            role: '',
-            org: '',
+            cpuCores : '',
+            gpuCores: '',
+            ram: '',
             showModal : false
         }
     },
     computed: mapState([    
-        'selectedUser'
+        'selectedCat'
     ]),
     methods: {
-        setData(user) {
-            this.name = user.name
-            this.surname = user.surname
-            this.email = user.email
-            this.role = user.role
-            this.org = user.org
-            this.password = user.password
+        setData(cat) {
+            this.name = cat.name
+            this.cpuCores = cat.cpuCores
+            this.gpuCores = cat.gpuCores
+            this.ram = cat.ram
         },
         closeModal() {
             this.showModal = false;
         },
-        deleteUser() {
-            this.$store.dispatch(DELETE_USER, this.selectedUser.email)
-            .then( res => this.closeModal())
-                    .catch(error => {
-                        this.$router.push('/users');
-                        alert(error.response.data.msg)
-                    })
+        deleteCat() {
+            this.$store.dispatch(DELETE_CATEGORY, this.selectedCat.name)
+            .then( res => this.closeModal)
+            .catch(error => alert(error.response.data.msg))
         }
     },
     mounted() {
-        this.routeName =  this.$route.params.email
-        const data = { email: this.routeName }
-        if (this.selectedUser)
-            if(this.selectedUser.email === data.email)
-                this.setData(this.selectedUser)
+        this.routeName =  this.$route.params.name
+        const data = { name: this.routeName }
+        if (this.selectedCat)
+            if(this.selectedCat.name === data.name)
+                this.setData(this.selectedCat)
         else {
-             this.$store.dispatch(GET_USER, data)
+             this.$store.dispatch(GET_CATEGORY, data)
                     .then( res => this.setData(res.data))
                     .catch(error => {
                         this.$router.push('/dashboard');
@@ -155,7 +131,7 @@ export default {
         }
     },
     beforeRouteLeave (to, from, next) {
-         this.$store.commit(SET_USER, null)
+         this.$store.commit(SET_CATEGORY, null)
          next()
   }
 }
