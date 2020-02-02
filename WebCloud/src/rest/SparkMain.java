@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import org.graalvm.compiler.phases.common.RemoveValueProxyPhase;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
@@ -492,6 +494,13 @@ public class SparkMain {
 			tmp.setRole(u.getRole());
 			tmp.setOrg(u.getOrg());
 			
+			if(Cache.getUsers().containsKey(tmp.getEmail()))
+			{
+				res.status(400);
+				msg.addProperty("msg", "Can't change email, such email already exists.");
+				return g.toJson(msg);
+			}
+			
 			if(u.getRole() == Roles.SUPER_ADMIN) {
 				Cache.getUsers().remove(u.getEmail());
 				Cache.getUsers().put(tmp.getEmail(), tmp);
@@ -717,8 +726,16 @@ public class SparkMain {
 					return g.toJson(msg);
 				}
 				
+				
+				
 				String payload = req.body();
 				VMCategory cat = g.fromJson(payload, VMCategory.class);
+				
+				if(Cache.getCategories().containsKey(cat.getName())) {
+					res.status(400);
+					msg.addProperty("msg", "Can't change category name, such category already exists.");
+					return g.toJson(msg);
+				}
 				
 				for (VM vm : Cache.getVms().values())
 					vm.updateCat(cat_name, cat);
@@ -794,7 +811,7 @@ public class SparkMain {
 						return g.toJson(msg);
 					}else {
 						res.status(200);
-						if (!(disc.getVm() == ""))
+						if (!(disc.getVm().equals("")))
 							Cache.putDisc(disc.getName(), disc);
 						else
 							Cache.getDiscs().put(disc.getName(), disc);
@@ -889,10 +906,21 @@ public class SparkMain {
 					return msg;
 				}
 				
+				
+				
 				for (VM vm : Cache.getVms().values()) {
 					vm.updateDisc(disc_name, disc);
 				}
 				
+				if(!disc.getName().equals(disc_name))
+					if(Cache.getDiscs().containsKey(disc.getName()))
+					{
+						res.status(400);
+						msg.addProperty("msg", "Can't change disc name to existing disc name.");
+						return msg;
+					}
+					Cache.getDiscs().remove(disc_name);
+					
 				Cache.getDiscs().put(disc.getName(), disc);
 				Cache.save();
 				res.status(200);
@@ -983,9 +1011,137 @@ public class SparkMain {
 				else
 				{
 					res.status(200);
-					return g.toJson(Cache.getDiscs().values());
+					return g.toJson(Cache.getVms().values());
 				}
 				
+			}
+			
+		});
+		
+		get("/api/vm/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String vm_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in, can't perform action.");
+				return g.toJson(msg);
+			}
+			
+			if(!Cache.getVms().containsKey(vm_name)) {
+				res.status(400);
+				msg.addProperty("msg", "No VM with such name.");
+				return g.toJson(msg);
+			}
+			
+			if (u.getRole() == Roles.USER || u.getRole() == Roles.ADMIN)
+			{
+				if(u.getOrg().equals(Cache.getVms().get(vm_name).getOrg()))
+				{
+					res.status(200);
+					return Cache.getVms().get(vm_name);				
+				}else
+				{
+					res.status(400);
+					msg.addProperty("msg", "User doesn't have permission to view VM.");
+					return g.toJson(msg);
+				}
+			}else {
+				res.status(200);
+				return g.toJson(Cache.getVms().get(vm_name));
+			}
+				
+			
+		});
+		
+		post("/api/vm" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in, can't perform action.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User doesn't have permission to add VM.");
+				return g.toJson(msg);
+			}
+			
+			String payload = req.body();
+			VM vm = g.fromJson(payload, VM.class);
+			
+			if(u.getRole() == Roles.ADMIN)
+				vm.setOrg(u.getOrg());
+			
+			
+			if(!vm.checkRequired()) {
+				res.status(400);
+				msg.addProperty("msg", "Fields missing.");
+				return g.toJson(msg);
+			}
+			
+			if(Cache.getVms().containsKey(vm.getName())) {
+				res.status(400);
+				msg.addProperty("msg", "Disc with such name already exists.");
+				return g.toJson(msg);
+			}else {
+				for (Disc disc : vm.getDiscs().values()) {
+					if(!disc.getOrg().equals(vm.getOrg()))
+					{
+						res.status(400);
+						msg.addProperty("msg", "Discs in VM have to belong to same organisation as VM.");
+						return g.toJson(msg);
+					}					
+				}
+				
+				Cache.putVM(vm);
+				
+				Cache.save();
+				return g.toJson(vm);
+			}
+		});
+		
+		delete("/api/vm/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String vm_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to remove discs");
+				return g.toJson(msg);
+			}else
+			{
+				if(!Cache.getVms().containsKey(vm_name))
+				{
+					res.status(400);
+					msg.addProperty("msg", "No disc with such name exists.");
+					return g.toJson(msg);
+				}
+				
+				if(!Cache.getVms().get(vm_name).getDiscs().isEmpty())
+				{
+					for (String disc_name : Cache.getVms().get(vm_name).getDiscs().keySet()) {
+						Cache.getDiscs().get(disc_name).setVm(null);
+					}
+				}
+				Cache.getVms().remove(vm_name);
+				Cache.save();
+				res.status(200);
+				return true;
 			}
 			
 		});
