@@ -1233,7 +1233,7 @@ public class SparkMain {
 					return msg;
 				}
 				
-				if(!vm.getOrg().equals(Cache.getDiscs().get(vm_name).getOrg()))
+				if(!vm.getOrg().equals(Cache.getVms().get(vm_name).getOrg()))
 				{
 					res.status(400);
 					msg.addProperty("msg", "Can't change organisation of VM.");
