@@ -1,28 +1,31 @@
 <template>
-<div id="menu">
-    <UserInfo></UserInfo>
+<div id="userMenu">
+<UserInfo/>
    <ul class="sidebar-panel-nav">
     <li><router-link 
             to="/users" 
-            v-if="role !== 'USER'"
-            @click.native="toggleSideBar">
+             v-if="userRole !== 'USER'"
+             @click.native="closeSideBar"
+           >
             Users
             </router-link></li>
     <li><router-link 
             to="/organisations"  
-            v-if="role !== 'USER'"
-            @click.native="toggleSideBar">
+            v-if="userRole !== 'USER'"
+             @click.native="closeSideBar"
+            >
             Organizations
          </router-link>
    </li>
     <li><router-link 
             to="/categories"  
-            v-if="role === 'SUPER_ADMIN'"
-            @click.native="toggleSideBar">
+            v-if="userRole === 'SUPER_ADMIN'"
+           @click.native="closeSideBar"
+           >
             Categories
             </router-link></li>
-    <li><router-link to="/disks" @click.native="toggleSideBar">Disks</router-link></li>
-    <li><router-link to="/me" @click.native="toggleSideBar">Account settings</router-link></li>
+    <li><router-link to="/discs" @click.native="closeSideBar">Discs</router-link></li>
+    <li><router-link to="/me" @click.native="closeSideBar">Account settings</router-link></li>
     </ul>
 </div>
 </template>
@@ -32,21 +35,17 @@ import UserInfo from './userInfo'
 import { SET_USER } from '../../mutations'
 
 export default {
- name: "menu",
- components: {
-     UserInfo
- },
- computed : {
-        role() {
-                return this.$store.getters.role
-        }
-},
-methods: {
-        toggleSideBar() {
-                this.$emit('toggle')
+        name: "userMenu",
+        components: {
+                UserInfo
+        },
+        props : ['userRole'],
+        methods: {
+                closeSideBar() {
+                         this.$emit('toggle')
                 }
-}
-}
+        }
+        }
 </script>
 
 <style scoped>

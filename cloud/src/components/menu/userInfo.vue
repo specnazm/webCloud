@@ -27,7 +27,7 @@ export default {
  name: "userInfo",
  computed : {
      user() {
-         return store.state.user
+         return store.getters.loggedUser
      }
  }
 }

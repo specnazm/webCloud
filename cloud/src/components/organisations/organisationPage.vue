@@ -3,7 +3,7 @@
     <Form 
         :showModal="showModal" 
         @closeModal="closeModal" 
-        :org="org" />
+        :org="selectedOrg" />
 		<div class="card">
 			<div class="container-fliud">
 				<div class="wrapper row">
@@ -58,6 +58,8 @@
 import { GET_ORGANISATION, EDIT_ORGANISATION } from '../../actions'
 import Form from '../forms/organisationForm'
 import { SET_ORGANISATION } from '../../mutations'
+import { mapState } from 'vuex'
+import store from '../../store'
 
 export default {
     name: "organisationPage",
@@ -75,37 +77,35 @@ export default {
             showModal : false
         }
     },
-    
     computed: {
-        org() {
-            return this.$store.getters.selectedOrg 
-        },
         userNum() {
             return Object.keys(this.users).length
         },
         rsrcNum() {
             return Object.keys(this.rsrc).length
-        }
+        },
+        ...mapState([
+            'selectedOrg'
+        ])
     },
     methods: {
         setData() {
-            this.name = this.org.name
-            this.desc = this.org.desc
-            this.logo_url = this.org.logo_url
-            this.users = this.org.users
-            this.rsrc = this.org.rsrc
+            this.name = this.selectedOrg.name
+            this.desc = this.selectedOrg.desc
+            this.logo_url = this.selectedOrg.logo_url
+            this.users = this.selectedOrg.users
+            this.rsrc = this.selectedOrg.rsrc
         },
         closeModal() {
                 this.showModal = false;
             }
     },
     mounted() {
-        console.log('heeeere')
         this.routeName =  this.$route.params.name
         const data = { name: this.routeName }
-        if (this.org)
-            if(this.org.name === data.name)
+        if (this.selectedOrg && this.selectedOrg.name === data.name) {
                 this.setData()
+        }
         else {
             this.$store.dispatch(GET_ORGANISATION, data)
             .then( res => this.setData(res.data))

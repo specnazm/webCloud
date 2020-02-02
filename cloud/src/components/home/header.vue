@@ -1,6 +1,6 @@
 <template>
 <div>
-  <header id="header" class="navbar navbar-dark bg-dark">
+  <div id="header" class="navbar navbar-dark bg-dark">
     <div class="logo">
       <router-link to="/">Home</router-link>
     </div>
@@ -13,16 +13,16 @@
           <router-link to="/dashboard">Dashboard</router-link>
         </li>
          <li v-if="this.$store.getters.isAuth">
-          <a id="logout" @click="logout">Log out</a>
+          <a class="logout" @click="logout">Log out</a>
         </li>
         <li v-if="this.$store.getters.isAuth">
-          <SidebarBtn :isOpen="this.isPanelOpen" @toggle="toggleSideBar"></SidebarBtn>
+          <SidebarBtn :isOpen="isPanelOpen" @toggle="toggleSideBar"></SidebarBtn>
         </li>
       </ul>
     </nav>
-  </header>
+  </div>
   <Sidebar :isOpen="isPanelOpen">
-     <Menu @toggle="toggleSideBar"></Menu>
+     <Menu :userRole="userRole" @toggle="toggleSideBar"/>
    </Sidebar>
   </div>
 </template>
@@ -44,7 +44,12 @@ export default {
     return this.$store.getters.isAuth
    }
   },
-  data: () => ({ isPanelOpen: false }),
+  data: function() {
+    return {
+      isPanelOpen: false,
+      userRole: this.$store.getters.role 
+      }
+  },
   methods : {
     logout() {
       this.$store.dispatch(AUTH_LOGOUT).then(() => this.$router.push('/signin'))

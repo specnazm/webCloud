@@ -5,7 +5,7 @@
         <div class="col-lg-12 my-3">
             <div class="pull-right">
                 <div class="btn-group">
-                    <button class="btn btn-info" id="list" @click="showModal = true">
+                    <button class="btn btn-info" id="list" @click="() => showModal = true">
                         Add new category
                     </button>
                 </div>
@@ -74,8 +74,8 @@ import { SET_CATEGORY } from '../../mutations'
           }
       },
        beforeRouteEnter(to,from,next) {
-            const role = store.getters.role
-            if ( role !== 'SUPER_ADMIN') {
+            const userRole = store.getters.role
+            if ( userRole !== 'SUPER_ADMIN') {
                 next('/dashboard')
             } else {
                 next()
