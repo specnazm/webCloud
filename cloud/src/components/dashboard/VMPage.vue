@@ -1,6 +1,7 @@
 <template>
 <div id="vmPage" >
     <Form 
+        v-if="role !== 'USER'"
         :showModal="showModal" 
         @closeModal="closeModal" 
         :vm="selectedVM"
@@ -37,7 +38,12 @@
                         type="button" 
                         class="btn btn-outline-danger" 
                         @click="deleteVM" >Delete VM</button>
-                </div>
+                    <button  
+                        v-if="role !== 'USER'"
+                        type="button" 
+                        class="btn btn-outline-success"
+                        @click="toggleVM" >{{toggleAction}}</button>
+                </div> 
                 <div class="col-md-8">
                     <div class="tab-content profile-tab" id="myTabContent">
                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
@@ -102,16 +108,34 @@
                                     <label>Discs :</label>
                                 </div>
                                 <div class="col-md-6">
-                                    <p v-for="d in discs" :key="d.name">{{d.name}}</p>
+                                    <ul>
+                                    <div  v-for="d in discs" :key="d.name">
+                                        <li><p>{{d.name}},</p></li>
+                                    </div>
+                                    </ul> 
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-2">
                                     <label>Logs :</label>
                                 </div>
-                                <div class="col-md-6">
-                                    <p v-for="(l,ind) in log" :key="ind">{{l}}</p>
+                                <div class="col-sm-5">
+                                    <ol>
+                                    <div v-for="(l,ind) in log" :key="ind" v-if="ind % 2 == 0">
+                                        <li><p>On: {{ l }}</p></li>
+                                        <hr>
+                                    </div>
+                                    </ol>  
                                 </div>
+                                 <div class="col-sm-5">
+                                    <ol>
+                                    <div v-for="(l,ind) in log" :key="ind" v-if="ind % 2 != 0">
+                                        <li><p>Off: {{ l }}</p></li>
+                                        <hr>
+                                    </div>
+                                    </ol>  
+                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -122,8 +146,8 @@
 </template>
 
 <script>
-import Form from '../forms/vmFormAdd'
-import { GET_VM , DELETE_VM } from '../../actions'
+import Form from '../forms/vmFormEdit'
+import { GET_VM , DELETE_VM , TOGGLE_VM} from '../../actions'
 import { SET_VM } from '../../mutations'
 import { mapState } from 'vuex'
 import store from '../../store'
@@ -136,22 +160,39 @@ export default {
     data : function() {
         return {
             routeName : '',
-            name : '',
             org : '',
-            cpuCores : '',
-            gpuCores: '',
-            ram : '',
-            category : '',
             discs : [],
             log : [],
-            active : false,
             showModal : false,
             role: store.getters.role
         }
     },
-    computed: mapState([    
+    computed: {
+        toggleAction() {
+            return this.active ? 'Deactivate' : 'Activate'
+        },
+        category() {
+            return this.selectedVM.category
+        },
+         cpuCores() {
+            return this.selectedVM.cpuCores
+        },
+        gpuCores() {
+            return this.selectedVM.gpuCores
+        },
+        ram() {
+            return this.selectedVM.ram
+        },
+        active() {
+            return this.selectedVM.active
+        },
+        name() {
+            return this.selectedVM.name
+        },
+        ...mapState([    
         'selectedVM'
-    ]),
+    ])},
+
     methods: {
         setData(vm) {
             this.name = vm.name
@@ -171,6 +212,12 @@ export default {
             this.$store.dispatch(DELETE_VM, this.selectedVM.name)
             .then( res => { this.closeModal() 
                     this.$router.push('/dashboard') })
+            .catch(error => alert(error.response.data.msg))
+        },
+        toggleVM() {
+    
+            this.$store.dispatch(TOGGLE_VM, { name: this.name})
+            .then( res => this.setData(res.data))
             .catch(error => alert(error.response.data.msg))
         }
     },
