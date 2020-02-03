@@ -163,8 +163,8 @@ export default {
       const action = this.user? EDIT_USER: ADD_USER
       this.$store.dispatch(action, data)
       .then( res => {
-          if (action === EDIT_USER)
-            this.$router.push('/users')
+          // if (action === EDIT_USER)
+          //   this.$router.push('/users')
           this.close()
       })
       .catch(error => alert(error.response.data.msg)) 
