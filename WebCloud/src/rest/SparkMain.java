@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.google.gson.Gson;
@@ -1290,10 +1291,10 @@ public class SparkMain {
 			}
 			String searched_name = (req.queryParams().contains("name")) ? req.queryParams("name") : "";
 			
-			Set<String> vms = Collections.<String>emptySet();;
+			HashSet<String> vms = new HashSet<String>();
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				if(searched_name.equals(""))
-					vms = Cache.getOrgs().get(u.getOrg()).getRsrc().keySet();
+					vms = (HashSet) Cache.getOrgs().get(u.getOrg()).getRsrc().keySet();
 				else
 				{
 					if (Cache.getVms().containsKey(searched_name) & Cache.getVms().get(searched_name).getOrg().equals(u.getOrg()))
@@ -1305,7 +1306,7 @@ public class SparkMain {
 			}
 			else {
 				if(searched_name.equals(""))
-					vms = Cache.getVms().keySet();
+					vms = (HashSet) Cache.getVms().keySet();
 				else
 				{
 					if (Cache.getVms().containsKey(searched_name))
