@@ -14,7 +14,7 @@ public class VM {
 	private Integer ram;
 	private HashMap<String, Disc> discs;
 	private boolean active = true;
-	private ArrayList<LocalDate> log;
+	private ArrayList<String> log;
 	
 	
 	public boolean checkRequired() {
@@ -25,10 +25,11 @@ public class VM {
 
 	public VM() {
 		super();
-		// TODO Auto-generated constructor stub
+		this.discs = new HashMap<String,Disc>();
+		this.log = new ArrayList<String>();
 	}
 
-	public VM(String name, String org, String category, Integer cpuCores, Integer gpuCores, Integer ram, HashMap<String, Disc> discs, boolean active,ArrayList<LocalDate> log) {
+	public VM(String name, String org, String category, Integer cpuCores, Integer gpuCores, Integer ram, HashMap<String, Disc> discs, boolean active,ArrayList<String> log) {
 	super();
 	this.name = name;
 	this.org = org;
@@ -122,7 +123,19 @@ public class VM {
 
 	public void toggleActive() {
 		this.active = !this.active;
+		this.log.add(LocalDate.now().toString());
 	}
-	
+
+	public ArrayList<String> getLog() {
+		return log;
+	}
+
+	public void setLog(ArrayList<String> log) {
+		this.log = log;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}	
 	
 }

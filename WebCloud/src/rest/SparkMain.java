@@ -11,11 +11,13 @@ import static spark.Spark.put;
 import static spark.Spark.delete;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-
-import org.graalvm.compiler.phases.common.RemoveValueProxyPhase;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -36,9 +38,7 @@ public class SparkMain {
 		private static JsonObject msg = new JsonObject();
 		
 	public static void main(String[] args) throws JsonIOException, IOException {
-		port(8079);		
-		
-		
+		port(8079);	
 		Cache.load();
 		
 		options("/*",
@@ -577,7 +577,7 @@ public class SparkMain {
 				return g.toJson(msg);
 			}
 			
-			if(u.getRole() != Roles.SUPER_ADMIN) {
+			if(u.getRole() == Roles.USER) {
 				res.status(403);
 				msg.addProperty("msg", "User lacks permission.");
 				return g.toJson(msg);
@@ -731,7 +731,7 @@ public class SparkMain {
 				String payload = req.body();
 				VMCategory cat = g.fromJson(payload, VMCategory.class);
 				
-				if(Cache.getCategories().containsKey(cat.getName())) {
+				if(Cache.getCategories().containsKey(cat.getName()) && !(cat_name.equals(cat.getName()))) {
 					res.status(400);
 					msg.addProperty("msg", "Can't change category name, such category already exists.");
 					return g.toJson(msg);
@@ -765,17 +765,38 @@ public class SparkMain {
 			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				String org_name = u.getOrg();
+				
+				if (req.queryParams().contains("org") && !org_name.equals(req.queryParams("org"))) {
+					res.status(403);
+					msg.addProperty("msg", "User lacks permission to view discs of other organisations.");
+					return g.toJson(msg);
+				}
+				
 				for (Disc d : Cache.getDiscs().values())
 				{
 					if(d.getOrg().equals(org_name))
 						discs.add(d);
 				}
+				
 				res.status(200);
 				return g.toJson(discs);
 			}else
 			{
-				res.status(200);
-				return g.toJson(Cache.getDiscs().values());
+				if(req.queryParams().contains("org")) {
+					String org_name = req.queryParams("org");
+					for (Disc disc : Cache.getDiscs().values())
+					{
+						if(disc.getOrg().equals(org_name) && disc.getVm().equals(""))
+							discs.add(disc);
+					}
+					res.status();
+					return g.toJson(discs);
+				}
+				else
+				{
+					res.status(200);
+					return g.toJson(Cache.getDiscs().values());
+				}
 			}
 			
 		});
@@ -851,7 +872,7 @@ public class SparkMain {
 					return g.toJson(msg);
 				}
 				
-				if(Cache.getDiscs().get(disc_name).getVm() != null)
+				if(Cache.getDiscs().get(disc_name).getVm() != "")
 					Cache.removeDisc(disc_name);
 				else
 					Cache.getDiscs().remove(disc_name);
@@ -893,8 +914,6 @@ public class SparkMain {
 				if(!disc.getOrg().equals(Cache.getDiscs().get(disc_name).getOrg()))
 				{
 					res.status(400);
-					System.out.println(disc.getOrg());
-					System.out.println(Cache.getDiscs().get(disc_name).getOrg());
 					msg.addProperty("msg", "Can't change organisation of disc.");
 					return msg;
 				}
@@ -912,7 +931,7 @@ public class SparkMain {
 					vm.updateDisc(disc_name, disc);
 				}
 				
-				if(!disc.getName().equals(disc_name))
+				if(!disc.getName().equals(disc_name)) {
 					if(Cache.getDiscs().containsKey(disc.getName()))
 					{
 						res.status(400);
@@ -920,7 +939,7 @@ public class SparkMain {
 						return msg;
 					}
 					Cache.getDiscs().remove(disc_name);
-					
+			}
 				Cache.getDiscs().put(disc.getName(), disc);
 				Cache.save();
 				res.status(200);
@@ -1146,8 +1165,180 @@ public class SparkMain {
 			
 		});
 		
+		patch("/api/vm/toggle/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String vm_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to change activity of VM.");
+				return g.toJson(msg);
+			}else
+			{
+				if(!Cache.getVms().containsKey(vm_name)) 
+				{
+					res.status(400);
+					msg.addProperty("msg", "No such VM exists.");
+					return g.toJson(msg);
+				}
+				
+				if(u.getRole()==Roles.ADMIN && !(u.getOrg().equals(Cache.getVms().get(vm_name).getOrg())))
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin can't change activity of VM in other organisation.");
+					return msg;
+				}
+				
+				res.status(200);
+				Cache.getVms().get(vm_name).toggleActive();
+				Cache.save();
+				return g.toJson(Cache.getVms().get(vm_name));
+			}
+			
+		}); 
 		
+		put("/api/vm/:name" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			String vm_name = req.params("name");
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			
+			if(u.getRole() == Roles.USER) {
+				res.status(403);
+				msg.addProperty("msg", "User lacks permission to remove discs");
+				return g.toJson(msg);
+			}else
+			{
+				String payload = req.body();
+				VM vm = g.fromJson(payload, VM.class);
+				
+				
+				
+				if(!vm.checkRequired())
+				{
+					res.status(400);
+					msg.addProperty("msg", "Fields missing");
+					return msg;
+				}
+				
+				if(!vm.getOrg().equals(Cache.getVms().get(vm_name).getOrg()))
+				{
+					res.status(400);
+					msg.addProperty("msg", "Can't change organisation of VM.");
+					return msg;
+				}
+				
+				if(u.getRole() == Roles.ADMIN && !(u.getOrg().equals(vm.getOrg())))
+				{
+					res.status(403);
+					msg.addProperty("msg", "Admin can't change VM from different organisation.");
+					return msg;
+				}
+								
+				
+				if(!vm.getName().equals(vm_name)) 
+				{
+					if(Cache.getVms().containsKey(vm.getName()))
+					{
+						res.status(400);
+						msg.addProperty("msg", "Can't change disc name to existing disc name.");
+						return msg;
+					}
+					for (Disc d : Cache.getVms().get(vm_name).getDiscs().values()) {
+						d.updateVM(vm_name, vm.getName());
+					}
+					
+					for(Disc d1 : vm.getDiscs().values()) {
+						d1.setVm(vm.getName());
+					}
+						
+					Cache.getVms().remove(vm_name);
+				}	
+				
+				Cache.getVms().put(vm.getName(), vm);
+				Cache.save();
+				res.status(200);
+				return g.toJson(vm);
+			}
+			
+		});
 		
+		get("/api/search" , (req, res) -> {
+			Session ss = req.session(true);
+			User u = ss.attribute("user");
+			res.type("application/json");
+			
+			
+			
+			if(u == null) {
+				res.status(400);
+				msg.addProperty("msg", "No user logged in.");
+				return g.toJson(msg);
+			}
+			String searched_name = (req.queryParams().contains("name")) ? req.queryParams("name") : "";
+			
+			HashSet<String> vms = new HashSet<String>();
+			if(u.getRole() != Roles.SUPER_ADMIN) {
+				if(searched_name.equals(""))
+					vms = (HashSet) Cache.getOrgs().get(u.getOrg()).getRsrc().keySet();
+				else
+				{
+					if (Cache.getVms().containsKey(searched_name) & Cache.getVms().get(searched_name).getOrg().equals(u.getOrg()))
+						vms.add(searched_name);
+					else
+						return vms;
+				}	
+					
+			}
+			else {
+				if(searched_name.equals(""))
+					vms = (HashSet) Cache.getVms().keySet();
+				else
+				{
+					if (Cache.getVms().containsKey(searched_name))
+						vms.add(searched_name);
+					else
+						return vms;
+				}
+			}
+									
+			Integer cpuHigh  = (req.queryParams().contains("cpuHigh")) ? Integer.parseInt(req.queryParams("cpuHigh")) :  99999;
+			Integer cpuLow  = (req.queryParams().contains("cpuLow")) ? Integer.parseInt(req.queryParams("cpuLow")) :  0;
+			Integer gpuHigh  = (req.queryParams().contains("gpuHigh")) ? Integer.parseInt(req.queryParams("gpuHigh")) :  99999;
+			Integer gpuLow  = (req.queryParams().contains("gpuLow")) ? Integer.parseInt(req.queryParams("gpuLow")) :  0;
+			Integer ramHigh  = (req.queryParams().contains("ramHigh")) ? Integer.parseInt(req.queryParams("ramHigh")) :  99999;
+			Integer ramLow  = (req.queryParams().contains("ramLow")) ? Integer.parseInt(req.queryParams("ramLow")) :  0;
+			Integer cpu;
+			Integer gpu;
+			Integer ram;
+			HashMap<String, VM> vm_map = new HashMap<String, VM>();
+			
+			for (String name : vms) {
+				cpu = Cache.getVms().get(name).getCpuCores();
+				gpu = Cache.getVms().get(name).getGpuCores();
+				ram = Cache.getVms().get(name).getRam();
+				if(cpu > cpuLow && cpu < cpuHigh && gpu > gpuLow && gpu < gpuHigh && ram > ramLow && ram < ramHigh)
+					vm_map.put(name, Cache.getVms().get(name));
+			}
+			
+			res.status(200);
+			return g.toJson(vm_map.values());
+			
+		}); 
 	}
 
 }

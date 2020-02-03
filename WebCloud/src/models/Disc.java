@@ -67,5 +67,9 @@ public class Disc {
 		this.org = org;
 	}
 	
-	
+	public void updateVM(String old, String nvm)
+	{
+		if(this.vm.equals(old))
+			this.vm = nvm;
+	}
 }
