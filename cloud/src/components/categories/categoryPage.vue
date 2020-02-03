@@ -99,6 +99,11 @@ export default {
     computed: mapState([    
         'selectedCat'
     ]),
+    watch: {
+        selectedCat() {
+            this.setData(this.selectedCat)
+        }
+    },
     methods: {
         setData(cat) {
             this.name = cat.name

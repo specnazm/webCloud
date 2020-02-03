@@ -28,6 +28,13 @@
                             id="desc"
                             v-model="desc">
                     </div>
+                    <div class="input">
+                        <label for="logo_url">Logo url:</label>
+                        <input
+                            type="text"
+                            id="logo_url"
+                            v-model="logo_url">
+                    </div>
                     <label for="logo">Upload logo</label>
                     <input 
                         type="file" 
@@ -63,6 +70,7 @@ export default {
         name: '',
         desc: '',
         logo: null,
+        logo_url : '',
         nameNotUnique: false,
         title: "New organisation",
         btnTitle: "Add organisation",
@@ -107,7 +115,7 @@ export default {
         const data = { 
                     name: this.name, 
                     desc: this.desc, 
-                    logo: this.logo
+                    logo_url: this.logo_url? this.logo_url: this.logo
                     }
         let action = ADD_ORGANISATION
         if (this.org) {
@@ -116,8 +124,8 @@ export default {
         }
         this.$store.dispatch(action, data)
         .then( res => {
-            if (action === EDIT_ORGANISATION)
-              this.$router.push('/organisations')
+            // if (action === EDIT_ORGANISATION)
+            //   this.$router.push('/organisations')
             this.close()
         })
         .catch(error => alert(error.response.data.msg))

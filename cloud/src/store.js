@@ -267,7 +267,8 @@ export default new Vuex.Store({
         }
         })
         .then(res => {
-          commit(SET_MODIFIED_ORG, res.data);
+          commit(SET_MODIFIED_ORG, res.data)
+          commit(SET_ORGANISATION, res.data);
           resolve()
         })
         .catch(err => {
@@ -367,6 +368,7 @@ export default new Vuex.Store({
         .then(res => {
           commit(SET_MODIFIED_USER, res.data)
           commit(AUTH_SUCCESS, res.data)
+          commit(SET_USER, res.data)
           localStorage.setItem('user', JSON.stringify(res.data));
           resolve()
         })
@@ -422,6 +424,7 @@ export default new Vuex.Store({
         })
         .then(res => {
           commit(SET_MODIFIED_CATEGORY, res.data);
+          commit(SET_CATEGORY, res.data);
           resolve()
         })
         .catch(err => {
@@ -495,6 +498,7 @@ export default new Vuex.Store({
         })
         .then(res => {
           commit(SET_MODIFIED_DISC, res.data);
+          commit(SET_DISC, res.data);
           resolve()
         })
         .catch(err => {

@@ -88,6 +88,11 @@ export default {
             'selectedOrg'
         ])
     },
+    watch: {
+        selectedOrg(){
+            this.setData()  
+        }
+    },
     methods: {
         setData() {
             this.name = this.selectedOrg.name
