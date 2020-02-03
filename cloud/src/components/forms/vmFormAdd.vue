@@ -1,5 +1,5 @@
 <template>   
-<div id="vmForm" v-if="showModal">
+<div id="vmFormAdd" v-if="showModal">
     <transition name="modal">
       <div class="modal-mask">
         <div class="modal-wrapper">
@@ -43,7 +43,7 @@
                           class="form-control" 
                           v-model="category" 
                           >
-                          <option v-for="c in categories" v-bind:value="c.name" :key="c.name">
+                          <option v-for="c in categories" v-bind:value="c" :key="c.name">
                            {{ c.name }}
                           </option>
                         </select>
@@ -55,7 +55,7 @@
                           class="form-control" 
                           v-model="discs" 
                           :selected="selDiscs">
-                          <option v-for="d in discList" v-bind:value="d.name" :key="d.name">
+                          <option v-for="d in discList" v-bind:value="d" :key="d.name">
                            {{ d.name }}
                           </option>
                         </select>
@@ -80,7 +80,7 @@ import store from '../../store'
 import { mapState } from 'vuex'
 
 export default {
-  name: 'vmForm',
+  name: 'vmFormAdd',
   props: ['showModal', 'disc'],
   data () {
     return {
@@ -89,15 +89,16 @@ export default {
       discs: [],
       category: '',
       selOrg: '',
-      selDiscs: '',
+      selDiscs: [],
       disable: false
     }
   },
   mounted() {
-     this.$store.dispatch(GET_CATEGORIES)
-            .then( res => console.log(res))
-            .catch(error => alert(error.response.data.msg))
-
+     if (store.getters.role !== 'USER') {
+      this.$store.dispatch(GET_CATEGORIES)
+              .then( res => console.log(res))
+              .catch(error => alert(error.response.data.msg))
+      }
      if (store.getters.role === 'ADMIN') {
        this.org = store.getters.org
        this.selOrg = this.org
@@ -127,15 +128,27 @@ export default {
       this.discs = []
       this.category = []
       this.selOrg = ''
-      this.selDiscs = ''
+      this.selDiscs = []
       this.disable = false
+    },
+    convertArrayToObject(array, key) {
+      const initialValue = {};
+      return array.reduce((obj, item) => {
+        return {
+          ...obj,
+          [item[key]]: item,
+        };
+      }, initialValue);
     },
     storeData() {
       const data = { 
                name: this.name,
                 org: this.org,
-                discs : this.discs,
-                category: this.category
+                discs : this.convertArrayToObject(this.discs, 'name'),
+                category: this.category.name,
+                cpuCores: this.category.cpuCores,
+                gpuCores: this.category.gpuCores,
+                ram: this.category.ram
               }
   
       this.$store.dispatch(ADD_VM, data)

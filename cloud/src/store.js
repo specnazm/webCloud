@@ -9,7 +9,7 @@ import {
   GET_USERS, GET_USER,ADD_USER, EDIT_USER, DELETE_USER, EDIT_PROFILE, 
   GET_CATEGORIES, GET_CATEGORY, ADD_CATEGORY, EDIT_CATEGORY, DELETE_CATEGORY, 
   GET_DISCS, GET_DISC, ADD_DISC, EDIT_DISC, DELETE_DISC,
-  GET_VMS, GET_VM, ADD_VM,EDIT_VM, DELETE_VM, SEARCH_VM} from './actions'
+  GET_VMS, GET_VM, ADD_VM,EDIT_VM, DELETE_VM, SEARCH_VM, TOGGLE_VM} from './actions'
 import { 
    AUTH_ERROR, AUTH_SUCCESS, 
    SET_ORGANISATIONS, SET_ORGANISATION, SET_MODIFIED_ORG, 
@@ -181,7 +181,7 @@ export default new Vuex.Store({
     },
     [SET_MODIFIED_VM] : (state, vm) => {
       const index = state.vms.findIndex(d => d.name === vm.name)
-
+      console.log('us atet', vm)
       state.vms = [...state.vms.slice(0, index), vm, ...state.discs.slice(index + 1, state.vms.length)]
     },
     [DELETE_VM] : (state, name) => {
@@ -571,6 +571,7 @@ export default new Vuex.Store({
         })
         .then(res => {
           commit(SET_MODIFIED_VM, res.data);
+          commit(SET_VM, res.data)
           resolve()
         })
         .catch(err => {
@@ -603,10 +604,25 @@ export default new Vuex.Store({
       }
       query = query.slice(0, -1)
       return new Promise((resolve, reject) => { 
-        axios.get(`/vm/search?${query}`)
+        axios.get(`/search?${query}`)
         .then(res => {
           commit(SET_VMS, res.data);
           resolve()
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
+    },
+
+    [TOGGLE_VM]: ({commit, dispatch}, data) => {
+
+      return new Promise((resolve, reject) => { 
+        axios.patch(`/vm/toggle/${data.name}`)
+        .then(res => {
+          commit(SET_MODIFIED_VM, res.data)
+          commit(SET_VM, res.data)
+          resolve(res)
         })
         .catch(err => {
           reject(err)
