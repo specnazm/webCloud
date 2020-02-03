@@ -59,7 +59,7 @@
                             <button type="button" class="btn btn-secondary" @click="close">Cancel</button>
                         </div>
                       <div class="alert alert-danger" role="alert" v-if="passFailed">
-                        Password doesn't match!
+                        Password dont match!
                     </div>
                 </form>
             </div>  
