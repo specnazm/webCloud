@@ -142,4 +142,10 @@ public class VM {
 	{
 		this.log.add(LocalDate.now().toString());
 	}
+	
+	public void updateVM(String old_name, String new_name)
+	{
+		if (this.getOrg().equals(old_name))
+			this.setOrg(new_name);
+	}
 }
