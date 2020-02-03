@@ -138,4 +138,8 @@ public class VM {
 		this.active = active;
 	}	
 	
+	public void init()
+	{
+		this.log.add(LocalDate.now().toString());
+	}
 }

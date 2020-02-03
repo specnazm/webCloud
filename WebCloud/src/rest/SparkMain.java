@@ -494,7 +494,7 @@ public class SparkMain {
 			tmp.setRole(u.getRole());
 			tmp.setOrg(u.getOrg());
 			
-			if(Cache.getUsers().containsKey(tmp.getEmail()))
+			if(Cache.getUsers().containsKey(tmp.getEmail()) && !(u.getEmail().equals(tmp.getEmail())))
 			{
 				res.status(400);
 				msg.addProperty("msg", "Can't change email, such email already exists.");
@@ -1118,7 +1118,7 @@ public class SparkMain {
 						return g.toJson(msg);
 					}					
 				}
-				
+				vm.init();
 				Cache.putVM(vm);
 				
 				Cache.save();
@@ -1154,7 +1154,7 @@ public class SparkMain {
 				if(!Cache.getVms().get(vm_name).getDiscs().isEmpty())
 				{
 					for (String disc_name : Cache.getVms().get(vm_name).getDiscs().keySet()) {
-						Cache.getDiscs().get(disc_name).setVm(null);
+						Cache.getDiscs().get(disc_name).setVm("");
 					}
 				}
 				Cache.getVms().remove(vm_name);
@@ -1291,10 +1291,11 @@ public class SparkMain {
 			}
 			String searched_name = (req.queryParams().contains("name")) ? req.queryParams("name") : "";
 			
-			HashSet<String> vms = new HashSet<String>();
+			Set<String> vms = new HashSet<>();
+			
 			if(u.getRole() != Roles.SUPER_ADMIN) {
 				if(searched_name.equals(""))
-					vms = (HashSet) Cache.getOrgs().get(u.getOrg()).getRsrc().keySet();
+					vms.addAll(Cache.getOrgs().get(u.getOrg()).getRsrc().keySet());
 				else
 				{
 					if (Cache.getVms().containsKey(searched_name) & Cache.getVms().get(searched_name).getOrg().equals(u.getOrg()))
@@ -1306,7 +1307,7 @@ public class SparkMain {
 			}
 			else {
 				if(searched_name.equals(""))
-					vms = (HashSet) Cache.getVms().keySet();
+					vms.addAll(Cache.getVms().keySet());
 				else
 				{
 					if (Cache.getVms().containsKey(searched_name))
