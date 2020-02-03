@@ -118,6 +118,12 @@ export default {
     computed: mapState([    
         'selectedUser'
     ]),
+
+    watch: {
+        selectedUser() {
+            this.setData(this.selectedUser)
+        }
+    },
     methods: {
         setData(user) {
             this.name = user.name

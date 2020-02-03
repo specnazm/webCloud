@@ -333,7 +333,8 @@ export default new Vuex.Store({
           data: JSON.stringify(data)
         })
         .then(res => {
-          commit(SET_MODIFIED_USER, res.data);
+          commit(SET_MODIFIED_USER, res.data)
+          commit(SET_USER, res.data)
           resolve()
         })
         .catch(err => {
